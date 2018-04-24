@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe ErrorMessage::User do
 
     let(:config) { Configuration.new }

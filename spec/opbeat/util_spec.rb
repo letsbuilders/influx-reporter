@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Util do
 
     describe "#nearest_minute", mock_time: true do

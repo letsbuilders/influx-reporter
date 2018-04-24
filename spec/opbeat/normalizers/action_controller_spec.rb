@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Normalizers::ActionController do
 
     let(:config) { Configuration.new }

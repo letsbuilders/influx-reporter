@@ -1,18 +1,18 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Util::Inspector, start_without_worker: true, mock_time: true do
 
     let(:transaction) do
-      Opbeat.transaction 'Test' do |transaction|
+      InfluxReporter.transaction 'Test' do |transaction|
         travel 10
-        Opbeat.trace('test 1', 'trace.test') do
+        InfluxReporter.trace('test 1', 'trace.test') do
           travel 100
-          Opbeat.trace('test 2', 'trace.test') { travel 150 }
+          InfluxReporter.trace('test 2', 'trace.test') { travel 150 }
           travel 50
         end
         travel 50
-        Opbeat.trace('test 3', 'trace.test') do
+        InfluxReporter.trace('test 3', 'trace.test') do
           travel 100
         end
         travel 1

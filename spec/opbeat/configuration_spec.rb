@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Configuration do
 
     it "has defaults" do

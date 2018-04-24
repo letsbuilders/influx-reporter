@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   describe HttpClient do
 
     let(:configuration) do

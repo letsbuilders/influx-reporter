@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Normalizers::ActionView do
 
     let(:config) { Configuration.new view_paths: ['/var/www/app/views'] }

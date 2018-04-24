@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Injections do
 
     class TestProbe
@@ -14,7 +14,7 @@ module Opbeat
     end
 
     let(:probe) { TestProbe.new }
-    subject { Opbeat::Injections }
+    subject { InfluxReporter::Injections }
 
     it "installs right away if constant is defined" do
       subject.register 'Opbeat', 'opbeat', probe

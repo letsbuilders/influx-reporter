@@ -16,7 +16,7 @@ if defined? Resque
       Resque.redis = Redis.new
 
       require 'resque/failure/multiple'
-      Resque::Failure::Multiple.classes = [Opbeat::Integration::Resque]
+      Resque::Failure::Multiple.classes = [InfluxReporter::Integration::Resque]
       Resque::Failure.backend = Resque::Failure::Multiple
     end
 
@@ -35,7 +35,7 @@ if defined? Resque
       job = worker.reserve
       worker.perform job
 
-      expect(Opbeat::Client.inst.queue.length).to be 1
+      expect(InfluxReporter::Client.inst.queue.length).to be 1
     end
 
   end

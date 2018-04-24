@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Subscriber do
 
     let(:config) { Configuration.new }
@@ -41,7 +41,7 @@ module Opbeat
       end
       describe "#start" do
         it "adds a new notification to current transaction" do
-          transaction = Opbeat.transaction 'Test'
+          transaction = InfluxReporter.transaction 'Test'
 
           expect do
             subject.start(*message_args)
@@ -53,7 +53,7 @@ module Opbeat
 
       describe "#finish" do
         it "adds a trace to current transaction" do
-          transaction = Opbeat.transaction 'Test'
+          transaction = InfluxReporter.transaction 'Test'
 
           expect do
             subject.start(*message_args)
@@ -63,10 +63,10 @@ module Opbeat
           transaction.release
         end
         it "adds a stack of parents", mock_time: true do
-          transaction = Opbeat.transaction 'Rack' do
+          transaction = InfluxReporter.transaction 'Rack' do
             subject.start(*message_args)
             travel 100
-            Opbeat.trace('thing-1') do
+            InfluxReporter.trace('thing-1') do
               travel 100
             end
             travel 100

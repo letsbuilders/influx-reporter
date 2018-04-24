@@ -7,7 +7,7 @@ if defined?(Redis)
 
     describe "#call" do
       it "adds a trace to current transaction" do
-        transaction = Opbeat.transaction 'Redis' do
+        transaction = InfluxReporter.transaction 'Redis' do
           redis.lrange("some:where", 0, -1)
         end
 

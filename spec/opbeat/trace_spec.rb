@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   describe Trace, mock_time: true do
 
     describe "#initialize" do

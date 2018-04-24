@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   module DataBuilders
     RSpec.describe Transactions, mock_time: true, start_without_worker: true do
 
@@ -14,12 +14,12 @@ module Opbeat
           transaction2.done 200
           transaction3.done 500
 
-          transaction4 = Opbeat.transaction('endpoint', 'special.kind') do
+          transaction4 = InfluxReporter.transaction('endpoint', 'special.kind') do
             travel 100
-            Opbeat.trace 'things' do
+            InfluxReporter.trace 'things' do
               travel 100
             end
-            Opbeat.trace 'things' do
+            InfluxReporter.trace 'things' do
               travel 100
             end
           end.done(500)

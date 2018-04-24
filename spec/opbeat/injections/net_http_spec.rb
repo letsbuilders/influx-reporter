@@ -2,20 +2,20 @@ require 'spec_helper'
 
 require 'open-uri'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe 'net/http integration', start_without_worker: true do
 
     it "is installed" do
-      reg = Opbeat::Injections.installed['Net::HTTP']
+      reg = InfluxReporter::Injections.installed['Net::HTTP']
       expect(reg).to_not be_nil
     end
 
     it "traces http calls" do
-      Opbeat::Injections.installed['Net::HTTP'].install
+      InfluxReporter::Injections.installed['Net::HTTP'].install
 
       WebMock.stub_request :get, 'http://example.com:80'
 
-      transaction = Opbeat.transaction 'Test'
+      transaction = InfluxReporter.transaction 'Test'
 
       Net::HTTP.start('example.com') do |http|
         http.get '/'

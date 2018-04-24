@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   module DataBuilders
     RSpec.describe Error do
 

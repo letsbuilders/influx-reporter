@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe ErrorMessage::Stacktrace do
 
     def real_exception
@@ -19,7 +19,7 @@ module Opbeat
 
         # so meta
         last_frame = stacktrace.frames.last
-        expect(last_frame.filename).to eq "opbeat/error_message/stacktrace_spec.rb"
+        expect(last_frame.filename).to eq "influx_reporter/error_message/stacktrace_spec.rb"
         expect(last_frame.lineno).to be 7
         expect(last_frame.abs_path).to_not be_nil
         expect(last_frame.function).to eq "/"

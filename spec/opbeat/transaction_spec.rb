@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'opbeat'
+require 'influx_reporter'
 
-module Opbeat
+module InfluxReporter
   describe Transaction, mock_time: true do
 
     describe "#initialize" do

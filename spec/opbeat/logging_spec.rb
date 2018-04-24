@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'opbeat'
+require 'influx_reporter'
 
-module Opbeat
+module InfluxReporter
   describe Logging do
     class FakeLogger
       def method_missing name, *args, &block

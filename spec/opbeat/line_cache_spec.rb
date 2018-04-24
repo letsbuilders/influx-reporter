@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe LineCache do
 
     let(:path) { "some/file.rb" }

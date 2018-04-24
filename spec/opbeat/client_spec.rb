@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Client do
 
     let(:config) { Configuration.new app_id: 'x', organization_id: 'y', secret_token: 'z' }
@@ -221,14 +221,14 @@ module Opbeat
 
     context "with performance disabled" do
       subject do
-        Opbeat::Client.inst
+        InfluxReporter::Client.inst
       end
 
       before do
         config.disable_performance = true
-        Opbeat.start! config
+        InfluxReporter.start! config
       end
-      after { Opbeat.stop! }
+      after { InfluxReporter.stop! }
 
       describe "#transaction" do
         it "yields" do
@@ -255,14 +255,14 @@ module Opbeat
 
     context "with errors disabled" do
       subject do
-        Opbeat::Client.inst
+        InfluxReporter::Client.inst
       end
 
       before do
         config.disable_errors = true
-        Opbeat.start! config
+        InfluxReporter.start! config
       end
-      after { Opbeat.stop! }
+      after { InfluxReporter.stop! }
 
       describe "#report" do
         it "doesn't do anything" do

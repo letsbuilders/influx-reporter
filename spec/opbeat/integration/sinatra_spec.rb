@@ -1,12 +1,12 @@
 require 'spec_helper'
 require 'sinatra'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe "sinatra integration" do
     include Rack::Test::Methods
 
     def config
-      @config ||= Opbeat::Configuration.new do |c|
+      @config ||= InfluxReporter::Configuration.new do |c|
         c.app_id = 'X'
         c.organization_id = 'Y'
         c.secret_token = 'Z'
@@ -15,14 +15,14 @@ module Opbeat
     end
 
     around do |example|
-      Opbeat.start! config
+      InfluxReporter.start! config
       example.call
-      Opbeat.stop!
+      InfluxReporter.stop!
     end
 
     class TestApp < ::Sinatra::Base
       disable :show_exceptions
-      use Opbeat::Middleware
+      use InfluxReporter::Middleware
 
       get '/' do
         erb "I am an inline template!"
@@ -44,21 +44,21 @@ module Opbeat
     it "wraps routes in transactions" do
       get '/'
 
-      transaction = Opbeat::Client.inst.pending_transactions.last
+      transaction = InfluxReporter::Client.inst.pending_transactions.last
       expect(transaction.endpoint).to eq 'GET /'
     end
 
     it "traces templates" do
       get '/tmpl'
 
-      transaction = Opbeat::Client.inst.pending_transactions.last
+      transaction = InfluxReporter::Client.inst.pending_transactions.last
       expect(transaction.traces.last.signature).to eq 'tmpl'
     end
 
     it "traces inline templates" do
       get '/'
 
-      transaction = Opbeat::Client.inst.pending_transactions.last
+      transaction = InfluxReporter::Client.inst.pending_transactions.last
       expect(transaction.traces.last.signature).to eq 'Inline erb'
     end
 
@@ -69,7 +69,7 @@ module Opbeat
     include Rack::Test::Methods
 
     def config
-      @config ||= Opbeat::Configuration.new do |c|
+      @config ||= InfluxReporter::Configuration.new do |c|
         c.app_id = 'X'
         c.organization_id = 'Y'
         c.secret_token = 'Z'
@@ -79,14 +79,14 @@ module Opbeat
     end
 
     around do |example|
-      Opbeat.start! config
+      InfluxReporter.start! config
       example.call
-      Opbeat.stop!
+      InfluxReporter.stop!
     end
 
     class TestApp < ::Sinatra::Base
       disable :show_exceptions
-      use Opbeat::Middleware
+      use InfluxReporter::Middleware
 
       get '/' do
         erb "I am an inline template!"
@@ -99,7 +99,7 @@ module Opbeat
 
     it "wraps routes in transactions" do
       get '/'
-      expect(Opbeat::Client.inst.pending_transactions.last).to be_nil
+      expect(InfluxReporter::Client.inst.pending_transactions.last).to be_nil
     end
 
   end

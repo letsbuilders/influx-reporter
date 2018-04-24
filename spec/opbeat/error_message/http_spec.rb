@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe ErrorMessage::HTTP do
 
     describe ".from_rack_env" do

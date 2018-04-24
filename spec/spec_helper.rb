@@ -11,7 +11,7 @@ SimpleCov.start
 
 require 'opbeat'
 
-module Opbeat
+module InfluxReporter
   class Configuration
     # Override defaults to enable http (caught by WebMock) in test env
     defaults = DEFAULTS.dup.merge enabled_environments: %w{test}
@@ -40,7 +40,7 @@ RSpec.configure do |config|
   end
 
   def build_config attrs = {}
-    Opbeat::Configuration.new({
+    InfluxReporter::Configuration.new({
       app_id: 'x',
       organization_id: 'y',
       secret_token: 'z'
@@ -48,17 +48,17 @@ RSpec.configure do |config|
   end
 
   config.around :each, start: true do |example|
-    Opbeat.start! build_config
+    InfluxReporter.start! build_config
     example.call
-    Opbeat::Client.inst.current_transaction = nil
-    Opbeat.stop!
+    InfluxReporter::Client.inst.current_transaction = nil
+    InfluxReporter.stop!
   end
 
   config.around :each, start_without_worker: true do |example|
-    Opbeat.start! build_config(disable_worker: true)
+    InfluxReporter.start! build_config(disable_worker: true)
     example.call
-    Opbeat::Client.inst.current_transaction = nil
-    Opbeat.stop!
+    InfluxReporter::Client.inst.current_transaction = nil
+    InfluxReporter.stop!
   end
 end
 

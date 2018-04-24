@@ -17,8 +17,8 @@ task :mem_profile do
 
   filename = "profile-#{Time.now.to_i}.txt"
 
-  MemoryProfiler.report(allow_files: /opbeat/i) do
-    require 'opbeat'
+  MemoryProfiler.report(allow_files: /influx_reporter/i) do
+    require 'influx_reporter'
   end.pretty_print(to_file: filename)
 
   filename

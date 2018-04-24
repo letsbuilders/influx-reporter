@@ -6,7 +6,7 @@ RSpec.describe "JSON integration", start_without_worker: true do
   if false # turned off for now
     describe "#parse" do
       it "adds a trace to current transaction" do
-        transaction = Opbeat.transaction 'JSON' do
+        transaction = InfluxReporter.transaction 'JSON' do
           JSON.parse('[{"something":1}]')
         end.done(true)
 
@@ -17,7 +17,7 @@ RSpec.describe "JSON integration", start_without_worker: true do
 
     describe "#parse" do
       it "adds a trace to current transaction" do
-        transaction = Opbeat.transaction 'JSON' do
+        transaction = InfluxReporter.transaction 'JSON' do
           JSON.parse!('[{"something":1}]')
         end.done(true)
 
@@ -28,7 +28,7 @@ RSpec.describe "JSON integration", start_without_worker: true do
 
     describe "#generate" do
       it "adds a trace to current transaction" do
-        transaction = Opbeat.transaction 'JSON' do
+        transaction = InfluxReporter.transaction 'JSON' do
           JSON.generate([{something: 1}])
         end.done(true)
 

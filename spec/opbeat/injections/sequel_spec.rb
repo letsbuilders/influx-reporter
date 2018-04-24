@@ -1,11 +1,11 @@
 require 'spec_helper'
 require 'sequel'
 
-module Opbeat
+module InfluxReporter
   RSpec.describe Injections::Sequel do
 
     it "is installed" do
-      reg = Opbeat::Injections.installed['Sequel']
+      reg = InfluxReporter::Injections.installed['Sequel']
       expect(reg).to_not be_nil
     end
 
@@ -21,7 +21,7 @@ module Opbeat
     end
 
     it "traces db calls", start_without_worker: true do
-      t = Opbeat.transaction 'Test' do
+      t = InfluxReporter.transaction 'Test' do
         @db[:tests].count
       end.done(true)
 

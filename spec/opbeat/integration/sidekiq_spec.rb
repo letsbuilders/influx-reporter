@@ -13,10 +13,10 @@ if defined?(Sidekiq)
 
   Sidekiq::Testing.inline!
   Sidekiq::Testing.server_middleware do |chain|
-    chain.add Opbeat::Integration::Sidekiq
+    chain.add InfluxReporter::Integration::Sidekiq
   end
 
-  RSpec.describe Opbeat::Integration::Sidekiq, start_without_worker: true do
+  RSpec.describe InfluxReporter::Integration::Sidekiq, start_without_worker: true do
 
     class MyWorker
       include Sidekiq::Worker
@@ -26,14 +26,14 @@ if defined?(Sidekiq)
       end
     end
 
-    it "captures and reports exceptions to opbeat" do
+    it "captures and reports exceptions to influx_reporter" do
       exception = Exception.new("BOOM")
 
       expect do
         MyWorker.perform_async exception
       end.to raise_error(Exception)
 
-      expect(Opbeat::Client.inst.queue.length).to be 1
+      expect(InfluxReporter::Client.inst.queue.length).to be 1
     end
 
   end
