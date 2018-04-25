@@ -1,4 +1,4 @@
-require 'opbeat/util'
+require 'influx_reporter/util'
 
 module InfluxReporter
   class Transaction

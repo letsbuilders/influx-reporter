@@ -1,18 +1,18 @@
 require 'thread'
-require 'opbeat/subscriber'
-require 'opbeat/http_client'
-require 'opbeat/worker'
-require 'opbeat/transaction'
-require 'opbeat/trace'
-require 'opbeat/error_message'
-require 'opbeat/data_builders'
+require 'influx_reporter/subscriber'
+require 'influx_reporter/http_client'
+require 'influx_reporter/worker'
+require 'influx_reporter/transaction'
+require 'influx_reporter/trace'
+require 'influx_reporter/error_message'
+require 'influx_reporter/data_builders'
 
 module InfluxReporter
   # @api private
   class Client
     include Logging
 
-    KEY = :__opbeat_transaction_key
+    KEY = :__influx_reporter_transaction_key
     LOCK = Mutex.new
 
     class TransactionInfo

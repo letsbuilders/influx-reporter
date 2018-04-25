@@ -1,4 +1,4 @@
-module InfluxReporter
+  module InfluxReporter
   # @api private
   class Worker
     include Logging

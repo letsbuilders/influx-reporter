@@ -9,7 +9,7 @@ require 'webmock/rspec'
 
 SimpleCov.start
 
-require 'opbeat'
+require 'influx_reporter'
 
 module InfluxReporter
   class Configuration
@@ -24,7 +24,7 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns += [%r{/gems/}]
 
   config.before :each do
-    @request_stub = stub_request(:post, /intake\.opbeat\.com/)
+    @request_stub = stub_request(:post, /intake\.influx_reporter\.com/)
   end
 
   config.around :each, mock_time: true do |example|

@@ -59,7 +59,7 @@ module InfluxReporter
       active_record
       action_view
     }.each do |f|
-      require "opbeat/normalizers/#{f}"
+      require "influx_reporter/normalizers/#{f}"
     end
   end
 end

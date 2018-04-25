@@ -1,9 +1,3 @@
-<h1>
-  <img src='http://opbeat-brand-assets.s3-website-us-east-1.amazonaws.com/svg/logo/logo.svg' width=400 alt='Opbeat' />
-</h1>
-
-[![Build status](https://travis-ci.org/opbeat/opbeat-ruby.svg)](https://travis-ci.org/opbeat/opbeat-ruby)
-
 ## Installation
 
 Add the following to your `Gemfile`:
@@ -12,7 +6,7 @@ Add the following to your `Gemfile`:
 gem 'influx_reporter', '~> 3.0.9'
 ```
 
-The Opbeat gem adheres to [Semantic
+The InfluxReporter gem adheres to [Semantic
 Versioning](http://guides.rubygems.org/patterns/#semantic-versioning)
 and so you can safely trust all minor and patch versions (e.g. 3.x.x) to
 be backwards compatible.
@@ -26,16 +20,14 @@ Add the following to your `config/environments/production.rb`:
 ```ruby
 Rails.application.configure do |config|
   # ...
-  config.opbeat.organization_id = 'XXX'
-  config.opbeat.app_id = 'XXX'
-  config.opbeat.secret_token = 'XXX'
+  config.influx_reporter.host = 'XXX'
 end
 ```
 
 ### Rack
 
 ```ruby
-require 'opbeat'
+require 'influx_reporter'
 
 # set up an Opbeat configuration
 config = Opbeat::Configuration.new do |conf|
@@ -54,20 +46,20 @@ use Opbeat::Middleware
 
 ## Configuration
 
-Opbeat works with just the authentication configuration but of course there are other knobs to turn. For a complete list, see [configuration.rb](https://github.com/opbeat/opbeat-ruby/blob/master/lib/opbeat/configuration.rb).
+Opbeat works with just the authentication configuration but of course there are other knobs to turn. For a complete list, see [configuration.rb](https://github.com/influx_reporter/influx_reporter-ruby/blob/master/lib/influx_reporter/configuration.rb).
 
 #### Enable in development and other environments
 
 As a default Opbeat only runs in production. You can make it run in other environments by adding them to the `enabled_environments` whitelist.
 
 ```ruby
-config.opbeat.enabled_environments += %w{development}
+config.influx_reporter.enabled_environments += %w{development}
 ```
 
 #### Ignore specific exceptions
 
 ```ruby
-config.opbeat.excluded_exceptions += %w{
+config.influx_reporter.excluded_exceptions += %w{
   ActiveRecord::RecordNotFound
   ActionController::RoutingError
 }
@@ -80,7 +72,7 @@ Opbeat can strip certain data points from the reports it sends like passwords or
 Add or modify the list using the `filter_parameters` configuration:
 
 ```ruby
-config.opbeat.filter_parameters += [/regex(p)?/, "string", :symbol]
+config.influx_reporter.filter_parameters += [/regex(p)?/, "string", :symbol]
 ```
 
 ### User information
@@ -88,7 +80,7 @@ config.opbeat.filter_parameters += [/regex(p)?/, "string", :symbol]
 Opbeat can automatically add user information to errors. By default it looks for at method called `current_user` on the current controller. To change the method use `current_user_method`.
 
 ```ruby
-config.opbeat.current_user_method = :current_employee
+config.influx_reporter.current_user_method = :current_employee
 ```
 
 ### Error context
@@ -115,11 +107,11 @@ end
 
 Opbeat automatically catches exceptions in [delayed_job](https://github.com/collectiveidea/delayed_job) or [sidekiq](http://sidekiq.org/).
 
-To enable Opbeat for [resque](https://github.com/resque/resque), add the following (for example in `config/initializers/opbeat_resque.rb`):
+To enable Opbeat for [resque](https://github.com/resque/resque), add the following (for example in `config/initializers/influx_reporter_resque.rb`):
 
 ```ruby
 require "resque/failure/multiple"
-require "opbeat/integration/resque"
+require "influx_reporter/integration/resque"
 
 Resque::Failure::Multiple.classes = [Opbeat::Integration::Resque]
 Resque::Failure.backend = Resque::Failure::Multiple
@@ -196,11 +188,4 @@ $ bundle install
 $ rspec spec
 ```
 
-## Legacy
-
-Be aware that 3.0 is an almost complete rewrite of the Opbeat ruby client. It is not api compliant with version 2 and below.
-
 ## Resources
-
-* [Bug Tracker](http://github.com/opbeat/opbeat-ruby/issues)
-* [Code](http://github.com/opbeat/opbeat-ruby)

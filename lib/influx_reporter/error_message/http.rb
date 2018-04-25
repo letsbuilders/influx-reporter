@@ -2,19 +2,20 @@ module InfluxReporter
   class ErrorMessage
     class HTTP < Struct.new(:url, :method, :data, :query_string, :cookies,
                             :headers, :remote_host, :http_host, :user_agent,
-                            :secure, :env)
+                            :secure, :env, :uuid)
 
-      HTTP_ENV_KEY = /^HTTP_/.freeze
-      UNDERSCORE = "_".freeze
-      DASH = "-".freeze
-      QUESTION = "?".freeze
+      HTTP_ENV_KEY = /^HTTP_/
+      UNDERSCORE = '_'.freeze
 
-      def self.from_rack_env env, opts = {}
-        if defined?(ActionDispatch::Request) && env.is_a?(ActionDispatch::Request)
-          req = env
-        else
-          req = Rack::Request.new env
-        end
+      DASH = '-'.freeze
+      QUESTION = '?'.freeze
+
+      def self.from_rack_env(env, opts = {})
+        req = if defined?(ActionDispatch::Request) && env.is_a?(ActionDispatch::Request)
+                env
+              else
+                Rack::Request.new env
+              end
 
         http = new(
           req.url.split(QUESTION).first,               # url
@@ -26,8 +27,9 @@ module InfluxReporter
           req.ip,                                      # remote host
           req.host_with_port,                          # http host
           req.user_agent,                              # user agent
-          req.scheme == 'https'.freeze ? true : false, # secure
-          {}                                           # env
+          req.scheme == 'https'.freeze, # secure
+          {}, # env
+          req.uuid
         )
 
         # In Rails < 5 ActionDispatch::Request inherits from Hash
@@ -38,7 +40,7 @@ module InfluxReporter
 
           if k.match(HTTP_ENV_KEY)
             header = k.gsub(HTTP_ENV_KEY, '')
-              .split(UNDERSCORE).map(&:capitalize).join(DASH)
+                      .split(UNDERSCORE).map(&:capitalize).join(DASH)
             http.headers[header] = v.to_s
           else
             http.env[k] = v.to_s
@@ -59,7 +61,7 @@ module InfluxReporter
         http
       end
 
-      def apply_filter filter
+      def apply_filter(filter)
         self.data = filter.apply data
         self.query_string = filter.apply query_string
         self.cookies = filter.apply cookies

@@ -1,4 +1,4 @@
-require 'opbeat/sql_summarizer'
+require 'influx_reporter/sql_summarizer'
 
 module InfluxReporter
   module Normalizers

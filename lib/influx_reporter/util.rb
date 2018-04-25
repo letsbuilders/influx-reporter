@@ -12,7 +12,7 @@ module InfluxReporter
     end
   end
 
-  require 'opbeat/util/inspector'
+  require 'influx_reporter/util/inspector'
 end
 
 # TODO: Maybe move this some place more explicit as we're extending

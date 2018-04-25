@@ -1,24 +1,27 @@
-require 'opbeat/line_cache'
-require 'opbeat/error_message/exception'
-require 'opbeat/error_message/stacktrace'
-require 'opbeat/error_message/http'
-require 'opbeat/error_message/user'
+require 'influx_reporter/line_cache'
+require 'influx_reporter/error_message/exception'
+require 'influx_reporter/error_message/stacktrace'
+require 'influx_reporter/error_message/http'
+require 'influx_reporter/error_message/user'
+require 'influx_reporter/util/timestamp'
 
 module InfluxReporter
   class ErrorMessage
     extend Logging
+    include Util::Timestamp
 
     DEFAULTS = {
       level: :error,
       logger: 'root'.freeze
     }.freeze
 
-    def initialize config, message, attrs = {}
+    def initialize(config, message, attrs = {})
       @config = config
 
       @message = message
-      @timestamp = Time.now.utc.to_i
-      DEFAULTS.merge(attrs).each do |k,v|
+      @timestamp = timestamp
+
+      DEFAULTS.merge(attrs).each do |k, v|
         send(:"#{k}=", v)
       end
       @filter = Filter.new config
@@ -41,7 +44,7 @@ module InfluxReporter
     attr_accessor :http
     attr_accessor :user
 
-    def self.from_exception config, exception, opts = {}
+    def self.from_exception(config, exception, opts = {})
       message = "#{exception.class}: #{exception.message}"
 
       if config.excluded_exceptions.include? exception.class.to_s
@@ -73,7 +76,7 @@ module InfluxReporter
       error_message
     end
 
-    def add_extra info
+    def add_extra(info)
       @extra ||= {}
       @extra.merge! info
     end

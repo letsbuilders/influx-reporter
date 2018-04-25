@@ -17,20 +17,20 @@ module InfluxReporter
     subject { InfluxReporter::Injections }
 
     it "installs right away if constant is defined" do
-      subject.register 'Opbeat', 'opbeat', probe
+      subject.register 'Opbeat', 'influx_reporter', probe
       expect(probe.installations).to be 1
     end
 
     it "installs a require hook" do
-      subject.register 'SomeLib', 'opbeat', probe
+      subject.register 'SomeLib', 'influx_reporter', probe
 
       expect(probe.installations).to be 0
 
       class ::SomeLib; end
-      require 'opbeat'
+      require 'influx_reporter'
       expect(probe.installations).to be 1
 
-      require 'opbeat'
+      require 'influx_reporter'
       expect(probe.installations).to be 1
     end
 
@@ -40,8 +40,8 @@ module InfluxReporter
     end
 
     it "doesn't install when required but class is missing" do
-      subject.register 'SomethingElse', 'opbeat', probe
-      require 'opbeat'
+      subject.register 'SomethingElse', 'influx_reporter', probe
+      require 'influx_reporter'
       expect(probe.installations).to be 0
     end
 

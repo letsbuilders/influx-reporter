@@ -1,4 +1,4 @@
-require 'opbeat/util/constantize'
+require 'influx_reporter/util/constantize'
 
 module InfluxReporter
   # @api private

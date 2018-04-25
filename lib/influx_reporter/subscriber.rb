@@ -1,5 +1,5 @@
 require 'active_support/notifications'
-require 'opbeat/normalizers'
+require 'influx_reporter/normalizers'
 
 module InfluxReporter
   # @api private

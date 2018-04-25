@@ -4,12 +4,12 @@ require 'rails'
 module InfluxReporter
   class Railtie < Rails::Railtie
 
-    config.opbeat = ActiveSupport::OrderedOptions.new
+    config.influx_reporter = ActiveSupport::OrderedOptions.new
     # bootstrap options with the defaults
-    Configuration::DEFAULTS.each { |k,v| config.opbeat[k] = v }
+    Configuration::DEFAULTS.each { |k,v| config.influx_reporter[k] = v }
 
     initializer "influx_reporter.configure" do |app|
-      config = Configuration.new app.config.opbeat do |conf|
+      config = Configuration.new app.config.influx_reporter do |conf|
         conf.logger = Rails.logger
         conf.view_paths = app.config.paths['app/views'].existent
       end
@@ -32,7 +32,7 @@ module InfluxReporter
 
     config.after_initialize do
       # :nocov:
-      require 'opbeat/integration/rails/inject_exceptions_catcher'
+      require 'influx_reporter/integration/rails/inject_exceptions_catcher'
       if defined?(ActionDispatch::DebugExceptions)
         ActionDispatch::DebugExceptions.send(
             :include, InfluxReporter::Integration::Rails::InjectExceptionsCatcher)
@@ -45,7 +45,7 @@ module InfluxReporter
 
     rake_tasks do
       # :nocov:
-      require 'opbeat/tasks'
+      require 'influx_reporter/tasks'
       # :nocov:
     end
 

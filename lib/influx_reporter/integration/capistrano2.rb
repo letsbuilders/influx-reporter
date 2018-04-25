@@ -4,9 +4,9 @@ module InfluxReporter
     def self.load_into(configuration)
 
       configuration.load do
-        after "deploy",            "opbeat:notify"
-        after "deploy:migrations", "opbeat:notify"
-        after "deploy:cold",       "opbeat:notify"
+        after "deploy",            "influx_reporter:notify"
+        after "deploy:migrations", "influx_reporter:notify"
+        after "deploy:cold",       "influx_reporter:notify"
         namespace :influx_reporter do
           desc "Notifies Opbeat of new deployments"
           task :notify, :except => { :no_release => true } do
@@ -31,7 +31,7 @@ module InfluxReporter
             notify_command << "RAILS_ENV=#{rails_env} "
 
             executable = fetch(:rake, 'bundle exec rake ')
-            notify_command << "#{executable} opbeat:release"
+            notify_command << "#{executable} influx_reporter:release"
             capture notify_command, :once => true
 
           end

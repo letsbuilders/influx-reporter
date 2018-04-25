@@ -1,24 +1,24 @@
-require 'opbeat/version'
-require 'opbeat/configuration'
+require 'influx_reporter/version'
+require 'influx_reporter/configuration'
 
-require 'opbeat/logging'
-require 'opbeat/client'
-require 'opbeat/error'
-require 'opbeat/trace_helpers'
+require 'influx_reporter/logging'
+require 'influx_reporter/client'
+require 'influx_reporter/error'
+require 'influx_reporter/trace_helpers'
 
-require 'opbeat/middleware'
+require 'influx_reporter/middleware'
 
-require 'opbeat/integration/railtie' if defined?(Rails)
+require 'influx_reporter/integration/railtie' if defined?(Rails)
 
-require 'opbeat/injections'
-require 'opbeat/injections/net_http'
-require 'opbeat/injections/redis'
-require 'opbeat/injections/sinatra'
-require 'opbeat/injections/sequel'
+require 'influx_reporter/injections'
+require 'influx_reporter/injections/net_http'
+require 'influx_reporter/injections/redis'
+require 'influx_reporter/injections/sinatra'
+require 'influx_reporter/injections/sequel'
 
-require 'opbeat/integration/delayed_job'
-require 'opbeat/integration/sidekiq'
-require 'opbeat/integration/resque'
+require 'influx_reporter/integration/delayed_job'
+require 'influx_reporter/integration/sidekiq'
+require 'influx_reporter/integration/resque'
 
 module InfluxReporter
   # Start the Opbeat client

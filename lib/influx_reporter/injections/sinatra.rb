@@ -19,9 +19,9 @@ module InfluxReporter
             def compile_template engine, data, opts, *args, &block
               case data
               when Symbol
-                opts[:__opbeat_template_sig] = data.to_s
+                opts[:__influx_reporter_template_sig] = data.to_s
               else
-                opts[:__opbeat_template_sig] = "Inline #{engine}"
+                opts[:__influx_reporter_template_sig] = "Inline #{engine}"
               end
 
               compile_template_with_opb(engine, data, opts, *args, &block)
@@ -40,7 +40,7 @@ module InfluxReporter
             alias render_without_opb render
 
             def render(*args, &block)
-              sig = options[:__opbeat_template_sig] || 'Unknown template'.freeze
+              sig = options[:__influx_reporter_template_sig] || 'Unknown template'.freeze
 
               InfluxReporter.trace sig, KIND do
                 render_without_opb(*args, &block)

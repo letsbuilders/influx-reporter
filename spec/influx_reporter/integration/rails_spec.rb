@@ -2,7 +2,7 @@ require 'spec_helper'
 
 require 'rails'
 require 'action_controller/railtie'
-require 'opbeat/integration/railtie'
+require 'influx_reporter/integration/railtie'
 
 describe 'Rails integration' do
   include Rack::Test::Methods
@@ -25,10 +25,10 @@ describe 'Rails integration' do
 
       config.eager_load = false
 
-      config.opbeat.app_id = 'APP_ID'
-      config.opbeat.organization_id = 'ORGANIZATION_ID'
-      config.opbeat.secret_token = 'SECRET_TOKEN'
-      config.opbeat.disable_worker = true
+      config.influx_reporter.app_id = 'APP_ID'
+      config.influx_reporter.organization_id = 'ORGANIZATION_ID'
+      config.influx_reporter.secret_token = 'SECRET_TOKEN'
+      config.influx_reporter.disable_worker = true
     end
 
     class UsersController < ActionController::Base
