@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'sequel'
 
 module InfluxReporter
   RSpec.describe Injections::Sequel do
-
-    it "is installed" do
+    it 'is installed' do
       reg = InfluxReporter::Injections.installed['Sequel']
       expect(reg).to_not be_nil
     end
@@ -20,7 +21,7 @@ module InfluxReporter
       @db[:tests].count # warm it up
     end
 
-    it "traces db calls", start_without_worker: true do
+    it 'traces db calls', start_without_worker: true do
       t = InfluxReporter.transaction 'Test' do
         @db[:tests].count
       end.done(true)
@@ -28,6 +29,5 @@ module InfluxReporter
       expect(t.traces.length).to be 2
       expect(t.traces.last.signature).to eq 'SELECT FROM `tests`'
     end
-
   end
 end

@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   RSpec.describe Injections do
-
     class TestProbe
       def initialize
         @installations = 0
       end
+
       def install
         @installations += 1
       end
@@ -16,12 +18,12 @@ module InfluxReporter
     let(:probe) { TestProbe.new }
     subject { InfluxReporter::Injections }
 
-    it "installs right away if constant is defined" do
+    it 'installs right away if constant is defined' do
       subject.register 'Opbeat', 'influx_reporter', probe
       expect(probe.installations).to be 1
     end
 
-    it "installs a require hook" do
+    it 'installs a require hook' do
       subject.register 'SomeLib', 'influx_reporter', probe
 
       expect(probe.installations).to be 0
@@ -44,6 +46,5 @@ module InfluxReporter
       require 'influx_reporter'
       expect(probe.installations).to be 0
     end
-
   end
 end

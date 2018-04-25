@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'influx_reporter'
 
 module InfluxReporter
   describe Logging do
     class FakeLogger
-      def method_missing name, *args, &block
+      def method_missing(name, *args)
         @calls ||= []
         @calls << [name, *args]
       end
@@ -18,15 +20,15 @@ module InfluxReporter
       extend Logging
     end
 
-    %w{fatal error info debug warn}.map(&:to_sym).each do |level|
+    %w[fatal error info debug warn].map(&:to_sym).each do |level|
       it "does #{level} with args" do
-        self.send level, "msg"
-        expect(logger.calls.last).to eq [level, "** [Opbeat] msg"]
+        send level, 'msg'
+        expect(logger.calls.last).to eq [level, '** [Opbeat] msg']
       end
       it "does #{level} with block" do
-        blck = lambda { "msg" }
-        self.send level, &blck
-        expect(logger.calls.last).to eq [level, "** [Opbeat] msg"]
+        blck = -> { 'msg' }
+        send level, &blck
+        expect(logger.calls.last).to eq [level, '** [Opbeat] msg']
       end
     end
 

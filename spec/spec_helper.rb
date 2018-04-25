@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV['RACK_ENV'] = 'test'
 
 DEBUG = ENV.fetch('CI', false)
@@ -14,7 +16,7 @@ require 'influx_reporter'
 module InfluxReporter
   class Configuration
     # Override defaults to enable http (caught by WebMock) in test env
-    defaults = DEFAULTS.dup.merge enabled_environments: %w{test}
+    defaults = DEFAULTS.dup.merge enabled_environments: %w[test]
     remove_const(:DEFAULTS)
     const_set(:DEFAULTS, defaults.freeze)
   end
@@ -30,7 +32,7 @@ RSpec.configure do |config|
   config.around :each, mock_time: true do |example|
     @date = Time.utc(1992, 1, 1)
 
-    def travel distance
+    def travel(distance)
       Timecop.freeze(@date += distance / 1_000.0)
     end
 
@@ -39,11 +41,11 @@ RSpec.configure do |config|
     Timecop.return
   end
 
-  def build_config attrs = {}
+  def build_config(attrs = {})
     InfluxReporter::Configuration.new({
-      app_id: 'x',
-      organization_id: 'y',
-      secret_token: 'z'
+        app_id: 'x',
+        organization_id: 'y',
+        secret_token: 'z'
     }.merge(attrs))
   end
 
@@ -68,7 +70,7 @@ RSpec::Matchers.define :delegate do |method, opts|
 
   match do |delegator|
     unless to.respond_to?(method)
-      raise NoMethodError.new("no method :#{method} on #{to}")
+      raise NoMethodError, "no method :#{method} on #{to}"
     end
 
     if args
@@ -84,4 +86,3 @@ RSpec::Matchers.define :delegate do |method, opts|
     "delegate :#{method} to #{to}"
   end
 end
-

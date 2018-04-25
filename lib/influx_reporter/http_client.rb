@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'uri'
 require 'net/http'
 require 'json'
@@ -7,7 +9,7 @@ module InfluxReporter
   class HttpClient
     include Logging
 
-    USER_AGENT = "influx_reporter-ruby/#{InfluxReporter::VERSION}".freeze
+    USER_AGENT = "influx_reporter-ruby/#{InfluxReporter::VERSION}"
 
     attr_reader :state
     attr_reader :adapter
@@ -25,17 +27,15 @@ module InfluxReporter
       debug "POST #{resource}"
 
       unless state.should_try?
-        info "Temporarily skipping sending to Opbeat due to previous failure."
+        info 'Temporarily skipping sending to Opbeat due to previous failure.'
         return
       end
 
-      if body.is_a?(Hash) || body.is_a?(Array)
-        body = JSON.dump(body)
-      end
+      body = JSON.dump(body) if body.is_a?(Hash) || body.is_a?(Array)
 
       request = adapter.post path do |req|
         req['Authorization'] = auth_header
-        req['Content-Type'] = 'application/json'.freeze
+        req['Content-Type'] = 'application/json'
         req['Content-Length'] = body.bytesize.to_s
         req['User-Agent'] = USER_AGENT
         req.body = body
@@ -44,7 +44,7 @@ module InfluxReporter
       begin
         response = adapter.perform_request request
         unless response.code.to_i.between?(200, 299)
-          raise Error.new("Error from Opbeat server (#{response.code}): #{response.body}")
+          raise Error, "Error from Opbeat server (#{response.code}): #{response.body}"
         end
       rescue
         debug { JSON.parse(body).inspect }
@@ -63,8 +63,8 @@ module InfluxReporter
       "Bearer #{@config.secret_token}"
     end
 
-    def abs_path path
-      "/api/v1/organizations/#{@config.organization_id}" +
+    def abs_path(path)
+      "/api/v1/organizations/#{@config.organization_id}" \
         "/apps/#{@config.app_id}#{path}"
     end
 
@@ -74,17 +74,17 @@ module InfluxReporter
     end
 
     class HTTPAdapter
-      def initialize conf
+      def initialize(conf)
         @config = conf
       end
 
-      def post path
+      def post(path)
         req = Net::HTTP::Post.new path
         yield req if block_given?
         req
       end
 
-      def perform_request req
+      def perform_request(req)
         http.start do |http|
           http.request req
         end
@@ -118,7 +118,7 @@ module InfluxReporter
       def should_try?
         return true if @status == :online
 
-        interval = ([@retry_number, 6].min() ** 2) * @config.backoff_multiplier
+        interval = ([@retry_number, 6].min**2) * @config.backoff_multiplier
         return true if Time.now.utc - @last_check > interval
 
         false
@@ -137,5 +137,4 @@ module InfluxReporter
       end
     end
   end
-
 end

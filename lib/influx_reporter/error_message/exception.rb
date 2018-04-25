@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   class ErrorMessage
     class Exception < Struct.new(:type, :value, :module)
-      SPLIT = '::'.freeze
+      SPLIT = '::'
 
       def self.from(exception)
         new exception.class.to_s, exception.message,

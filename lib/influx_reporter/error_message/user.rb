@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   class ErrorMessage
     class User < Struct.new(:is_authenticated, :id, :username, :email)
-      CONTROLLER_KEY = 'action_controller.instance'.freeze
+      CONTROLLER_KEY = 'action_controller.instance'
 
-      def self.from_rack_env config, env
+      def self.from_rack_env(config, env)
         controller = env[CONTROLLER_KEY]
         method = config.current_user_method.to_sym
 
@@ -12,10 +14,10 @@ module InfluxReporter
         user = controller.send method
 
         new(
-          true,
-          user.respond_to?(:id) ? user.id : nil,
-          user.respond_to?(:username) ? user.username : nil,
-          user.respond_to?(:email) ? user.email : nil
+            true,
+            user.respond_to?(:id) ? user.id : nil,
+            user.respond_to?(:username) ? user.username : nil,
+            user.respond_to?(:email) ? user.email : nil
         )
       end
     end

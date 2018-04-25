@@ -1,18 +1,20 @@
-  module InfluxReporter
+# frozen_string_literal: true
+
+module InfluxReporter
   # @api private
   class Worker
     include Logging
 
     class PostRequest < Struct.new(:path, :data)
       # require all parameters
-      def initialize path, data
+      def initialize(path, data)
         super(path, data)
       end
     end
 
     class StopMessage; end
 
-    def initialize config, queue, http_client
+    def initialize(config, queue, http_client)
       @config = config
       @queue = queue
       @http_client = http_client
@@ -24,12 +26,12 @@
       loop do
         while action = @queue.pop
           case action
-          when PostRequest
-            process_request action
-          when StopMessage
-            Thread.exit
-          else
-            raise Error.new("Unknown entity in worker queue: #{action.inspect}")
+            when PostRequest
+              process_request action
+            when StopMessage
+              Thread.exit
+            else
+              raise Error, "Unknown entity in worker queue: #{action.inspect}"
           end
         end
       end
@@ -37,9 +39,9 @@
 
     private
 
-    def process_request req
+    def process_request(req)
       unless config.validate!
-        info "Invalid config - Skipping posting to Opbeat"
+        info 'Invalid config - Skipping posting to influxdb'
         return
       end
 
@@ -50,6 +52,5 @@
         debug e.backtrace.join("\n")
       end
     end
-
-  end
+    end
 end

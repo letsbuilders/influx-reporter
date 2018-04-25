@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   RSpec.describe Normalizers::ActionController do
-
     let(:config) { Configuration.new }
     let(:normalizers) { Normalizers.build config }
 
@@ -11,17 +12,15 @@ module InfluxReporter
         normalizers.normalizer_for('process_action.action_controller')
       end
 
-      it "registers" do
+      it 'registers' do
         expect(subject).to be_a Normalizers::ActionController::ProcessAction
       end
 
-      describe "#normalize" do
-        it "normalizes input and updates transaction" do
+      describe '#normalize' do
+        it 'normalizes input and updates transaction' do
           transaction = Struct.new(:endpoint).new(nil)
 
-          result = subject.normalize(transaction, 'process_action.action_controller', {
-            controller: 'SomeController', action: 'index'
-          })
+          result = subject.normalize(transaction, 'process_action.action_controller', controller: 'SomeController', action: 'index')
 
           expect(transaction.endpoint).to eq 'SomeController#index'
           expect(result).to match ['SomeController#index', 'app.controller.action', nil]

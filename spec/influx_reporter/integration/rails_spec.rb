@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 require 'rails'
@@ -41,12 +43,12 @@ describe 'Rails integration' do
       end
 
       def other
-        json = InfluxReporter.trace('JSON.dump') { sleep 0.1; {result: :ok } }
+        json = InfluxReporter.trace('JSON.dump') { sleep 0.1; { result: :ok } }
         render json: json
       end
 
       def error
-        raise Exception.new("NO KETCHUP!")
+        raise Exception, 'NO KETCHUP!'
       end
     end
 
@@ -69,19 +71,19 @@ describe 'Rails integration' do
     InfluxReporter::Client.inst.instance_variable_set :@pending_transactions, []
   end
 
-  it "adds an exception handler and handles exceptions" do
+  it 'adds an exception handler and handles exceptions' do
     get '/error'
 
     expect(InfluxReporter::Client.inst.queue.length).to be 1
   end
 
-  it "traces actions and enqueues transaction" do
+  it 'traces actions and enqueues transaction' do
     get '/'
 
     expect(InfluxReporter::Client.inst.pending_transactions.length).to be 1
   end
 
-  it "logs when failing to report error" do
+  it 'logs when failing to report error' do
     allow(InfluxReporter::Client.inst).to receive(:report).and_raise
     allow(Rails.logger).to receive(:error)
 

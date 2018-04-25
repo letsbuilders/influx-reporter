@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'influx_reporter/util/constantize'
 
 module InfluxReporter
   # @api private
   module Injections
     class Registration
-      def initialize const_name, require_paths, injector
+      def initialize(const_name, require_paths, injector)
         @const_name = const_name
         @require_paths = Array(require_paths)
         @injector = injector
@@ -36,13 +38,13 @@ module InfluxReporter
       end
     end
 
-    def self.register_require_hook registration
+    def self.register_require_hook(registration)
       registration.require_paths.each do |path|
         require_hooks[path] = registration
       end
     end
 
-    def self.hook_into name
+    def self.hook_into(name)
       return unless registration = lookup(name)
 
       if const_defined?(registration.const_name)
@@ -55,12 +57,16 @@ module InfluxReporter
       end
     end
 
-    def self.lookup require_path
+    def self.lookup(require_path)
       require_hooks[require_path]
     end
 
-    def self.const_defined? const_name
-      const = Util.constantize(const_name) rescue nil
+    def self.const_defined?(const_name)
+      const = begin
+                Util.constantize(const_name)
+              rescue
+                nil
+              end
       !!const
     end
   end
@@ -68,9 +74,9 @@ end
 
 # @api private
 module ::Kernel
-  alias require_without_op require
+  alias_method :require_without_op, :require
 
-  def require name
+  def require(name)
     res = require_without_op name
 
     begin

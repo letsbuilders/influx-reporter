@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   module Util
     # From https://github.com/rails/rails/blob/861b70e92f4a1fc0e465ffcf2ee62680519c8f6f/activesupport/lib/active_support/inflector/methods.rb#L249

@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   RSpec.describe ErrorMessage::User do
-
     let(:config) { Configuration.new }
 
     class Controller
@@ -11,11 +12,9 @@ module InfluxReporter
       end
     end
 
-    describe ".from_rack_env" do
-      it "initializes from rack env" do
-        env = Rack::MockRequest.env_for '/', {
-          'action_controller.instance' => Controller.new
-        }
+    describe '.from_rack_env' do
+      it 'initializes from rack env' do
+        env = Rack::MockRequest.env_for '/', 'action_controller.instance' => Controller.new
         user = ErrorMessage::User.from_rack_env config, env
 
         expect(user.id).to be 1
@@ -23,6 +22,5 @@ module InfluxReporter
         expect(user.username).to eq 'leroy'
       end
     end
-
   end
 end

@@ -1,22 +1,24 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   class Middleware
-    def initialize app
+    def initialize(app)
       @app = app
     end
 
-    def call env
+    def call(env)
       begin
-        transaction = InfluxReporter.transaction "Rack", "app.rack.request"
+        transaction = InfluxReporter.transaction 'Rack', 'app.rack.request'
         resp = @app.call env
         resp[2] = BodyProxy.new(resp[2]) { transaction.submit(resp[0]) } if transaction
       rescue Error
         raise # Don't report Opbeat errors
       rescue Exception => e
         InfluxReporter.report e, rack_env: env
-        transaction.submit(500) if transaction
+        transaction&.submit(500)
         raise
       ensure
-        transaction.release if transaction
+        transaction&.release
       end
 
       if error = env['rack.exception'] || env['sinatra.error']
@@ -28,11 +30,13 @@ module InfluxReporter
   end
 
   class BodyProxy
-    def initialize body, &block
-      @body, @block, @closed = body, block, false
+    def initialize(body, &block)
+      @body = body
+      @block = block
+      @closed = false
     end
 
-    def respond_to? *args
+    def respond_to?(*args)
       super || @body.respond_to?(*args)
     end
 
@@ -52,7 +56,7 @@ module InfluxReporter
       @closed
     end
 
-    def method_missing *args, &block
+    def method_missing(*args, &block)
       @body.__send__(*args, &block)
     end
   end

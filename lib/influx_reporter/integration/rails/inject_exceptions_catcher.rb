@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   module Integration
     module Rails
@@ -11,8 +13,8 @@ module InfluxReporter
           begin
             InfluxReporter.report(exception, rack_env: env) if InfluxReporter.started?
           rescue
-            ::Rails::logger.error "** [Opbeat] Error capturing or sending exception #{$!}"
-            ::Rails::logger.debug $!.backtrace.join("\n")
+            ::Rails.logger.error "** [InfluxReporter] Error capturing or sending exception #{$ERROR_INFO}"
+            ::Rails.logger.debug $ERROR_INFO.backtrace.join("\n")
           end
 
           render_exception_without_influx_reporter(env, exception)
@@ -21,4 +23,3 @@ module InfluxReporter
     end
   end
 end
-

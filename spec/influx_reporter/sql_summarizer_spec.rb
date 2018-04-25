@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
@@ -11,11 +13,11 @@ module InfluxReporter
     end
 
     it 'summarizes selects from table' do
-      expect(subject.signature_for("SELECT * FROM table")).to eq('SELECT FROM table')
+      expect(subject.signature_for('SELECT * FROM table')).to eq('SELECT FROM table')
     end
 
     it 'summarizes selects from table with columns' do
-      expect(subject.signature_for("SELECT a, b FROM table")).to eq('SELECT FROM table')
+      expect(subject.signature_for('SELECT a, b FROM table')).to eq('SELECT FROM table')
     end
 
     it 'summarizes inserts' do

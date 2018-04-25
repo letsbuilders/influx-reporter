@@ -1,14 +1,16 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   class ErrorMessage
     class HTTP < Struct.new(:url, :method, :data, :query_string, :cookies,
-                            :headers, :remote_host, :http_host, :user_agent,
-                            :secure, :env, :uuid)
+        :headers, :remote_host, :http_host, :user_agent,
+        :secure, :env, :uuid)
 
       HTTP_ENV_KEY = /^HTTP_/
-      UNDERSCORE = '_'.freeze
+      UNDERSCORE = '_'
 
-      DASH = '-'.freeze
-      QUESTION = '?'.freeze
+      DASH = '-'
+      QUESTION = '?'
 
       def self.from_rack_env(env, opts = {})
         req = if defined?(ActionDispatch::Request) && env.is_a?(ActionDispatch::Request)
@@ -18,18 +20,18 @@ module InfluxReporter
               end
 
         http = new(
-          req.url.split(QUESTION).first,               # url
-          req.request_method,                          # method
-          nil,                                         # data
-          req.query_string,                            # query string
-          env['HTTP_COOKIE'],                          # cookies
-          {},                                          # headers
-          req.ip,                                      # remote host
-          req.host_with_port,                          # http host
-          req.user_agent,                              # user agent
-          req.scheme == 'https'.freeze, # secure
-          {}, # env
-          req.uuid
+            req.url.split(QUESTION).first,               # url
+            req.request_method,                          # method
+            nil,                                         # data
+            req.query_string,                            # query string
+            env['HTTP_COOKIE'],                          # cookies
+            {},                                          # headers
+            req.ip,                                      # remote host
+            req.host_with_port,                          # http host
+            req.user_agent,                              # user agent
+            req.scheme == 'https', # secure
+            {}, # env
+            req.uuid
         )
 
         # In Rails < 5 ActionDispatch::Request inherits from Hash
@@ -40,7 +42,7 @@ module InfluxReporter
 
           if k.match(HTTP_ENV_KEY)
             header = k.gsub(HTTP_ENV_KEY, '')
-                      .split(UNDERSCORE).map(&:capitalize).join(DASH)
+                         .split(UNDERSCORE).map(&:capitalize).join(DASH)
             http.headers[header] = v.to_s
           else
             http.env[k] = v.to_s

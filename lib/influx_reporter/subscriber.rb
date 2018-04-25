@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/notifications'
 require 'influx_reporter/normalizers'
 
@@ -6,7 +8,7 @@ module InfluxReporter
   class Subscriber
     include Logging
 
-    def initialize config, client
+    def initialize(config, client)
       @config = config
       @client = client
       @normalizers = Normalizers.build config
@@ -27,14 +29,14 @@ module InfluxReporter
     # AS::Notifications API
 
     class Notification
-      def initialize id, trace
+      def initialize(id, trace)
         @id = id
         @trace = trace
       end
       attr_reader :id, :trace
     end
 
-    def start name, id, payload
+    def start(name, id, payload)
       return unless transaction = @client.current_transaction
 
       normalized = @normalizers.normalize(transaction, name, payload)
@@ -55,16 +57,15 @@ module InfluxReporter
       transaction.notifications << Notification.new(id, trace)
     end
 
-    def finish name, id, payload
+    def finish(_name, id, _payload)
       return unless transaction = @client.current_transaction
 
       while notification = transaction.notifications.pop
-        if notification.id == id
-          if trace = notification.trace
-            trace.done
-          end
-          return
+        next unless notification.id == id
+        if trace = notification.trace
+          trace.done
         end
+        return
       end
     end
 
@@ -72,9 +73,8 @@ module InfluxReporter
 
     def actions_regex
       @actions_regex ||= Regexp.new(
-        "(".freeze + @normalizers.keys.join("|".freeze) + ")".freeze
+          '(' + @normalizers.keys.join('|') + ')'
       )
     end
-
   end
 end

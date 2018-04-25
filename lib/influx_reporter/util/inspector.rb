@@ -1,31 +1,30 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
 module InfluxReporter
   module Util
     class Inspector
-
       DEFAULTS = {
-        width: 120
+          width: 120
       }.freeze
 
-      NEWLINE = "\n".freeze
-      SPACE = " ".freeze
+      NEWLINE = "\n"
+      SPACE = ' '
 
-      def initialize config = {}
+      def initialize(config = {})
         @config = DEFAULTS.merge(config)
       end
 
-      def ms nanos
+      def ms(nanos)
         nanos.to_f / 1_000_000
       end
 
-      def transaction transaction, opts = {}
+      def transaction(transaction, opts = {})
         w = @config[:width].to_f
         f = w / ms(transaction.duration)
 
         traces = transaction.traces
 
-        traces = traces.reduce([]) do |state, trace|
+        traces = traces.each_with_object([]) do |trace, state|
           descriptions = [
             "#{trace.signature} - #{trace.kind}",
             "transaction:#{trace.transaction.endpoint}"
@@ -49,19 +48,18 @@ module InfluxReporter
 
           if trace.duration
             span = (ms(trace.duration) * f).ceil.to_i
-            lines << "#{SPACE * indent}+#{"-" * [(span - 2), 0].max}+"
+            lines << "#{SPACE * indent}+#{'-' * [(span - 2), 0].max}+"
           else
             lines << "#{SPACE * indent}UNFINISHED"
           end
 
           state << lines.join("\n")
-          state
         end.join("\n")
 
         <<-STR.gsub(/^\s{8}/, '')
-        \n#{"=" * (w.to_i)}
+        \n#{'=' * w.to_i}
         #{transaction.endpoint} - kind:#{transaction.kind} - #{transaction.duration.to_f / 1_000_000}ms
-        +#{"-" * (w.to_i - 2)}+
+        +#{'-' * (w.to_i - 2)}+
         #{traces}
         STR
       rescue => e
@@ -69,7 +67,6 @@ module InfluxReporter
         puts e.backtrace.join("\n")
         transaction.inspect
       end
-
     end
   end
 end

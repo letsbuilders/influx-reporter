@@ -22,7 +22,7 @@ module InfluxReporter
           error_message = ErrorMessage.from_exception config, real_exception
           example = {
               data: {
-                  message: "ZeroDivisionError: divided by 0",
+                  message: 'ZeroDivisionError: divided by 0',
                   culprit: "influx_reporter/data_builders/error_spec.rb:15:in `/'"
               },
               tags: {

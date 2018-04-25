@@ -1,32 +1,34 @@
+# frozen_string_literal: true
+
 require 'logger'
 
 module InfluxReporter
   class Configuration
     DEFAULTS = {
-      server: "https://intake.influx_reporter.com".freeze,
-      logger: Logger.new(nil),
-      context_lines: 3,
-      enabled_environments: %w{production},
-      excluded_exceptions: [],
-      filter_parameters: [/(authorization|password|passwd|secret)/i],
-      timeout: 100,
-      open_timeout: 100,
-      backoff_multiplier: 2,
-      use_ssl: true,
-      current_user_method: :current_user,
-      environment: ENV['RACK_ENV'] || ENV['RAILS_ENV'] || 'default',
-      transaction_post_interval: 60,
-      worker_quit_timeout: 5,
+        server: 'https://intake.influx_reporter.com',
+        logger: Logger.new(nil),
+        context_lines: 3,
+        enabled_environments: %w[production],
+        excluded_exceptions: [],
+        filter_parameters: [/(authorization|password|passwd|secret)/i],
+        timeout: 100,
+        open_timeout: 100,
+        backoff_multiplier: 2,
+        use_ssl: true,
+        current_user_method: :current_user,
+        environment: ENV['RACK_ENV'] || ENV['RAILS_ENV'] || 'default',
+        transaction_post_interval: 60,
+        worker_quit_timeout: 5,
 
-      disable_performance: false,
-      disable_errors: false,
+        disable_performance: false,
+        disable_errors: false,
 
-      debug_traces: false,
+        debug_traces: false,
 
-      view_paths: [],
+        view_paths: [],
 
-      # for tests
-      disable_worker: false
+        # for tests
+        disable_worker: false
     }.freeze
 
     attr_accessor :secret_token
@@ -57,19 +59,17 @@ module InfluxReporter
 
     attr_accessor :view_paths
 
-    def initialize opts = {}
+    def initialize(opts = {})
       DEFAULTS.merge(opts).each do |k, v|
-        self.send("#{k}=", v)
+        send("#{k}=", v)
       end
 
-      if block_given?
-        yield self
-      end
+      yield self if block_given?
     end
 
     def validate!
-      %w{app_id secret_token organization_id}.each do |key|
-        raise Error.new("Opbeat Configuration missing `#{key}'") unless self.send(key)
+      %w[app_id secret_token organization_id].each do |key|
+        raise Error, "Opbeat Configuration missing `#{key}'" unless send(key)
       end
 
       true

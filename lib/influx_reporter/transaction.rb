@@ -1,17 +1,18 @@
+# frozen_string_literal: true
+
 require 'influx_reporter/util'
 
 module InfluxReporter
   class Transaction
+    ROOT_TRACE_NAME = 'transaction'
 
-    ROOT_TRACE_NAME = 'transaction'.freeze
-
-    def initialize client, endpoint, kind = 'code.custom', result = nil
+    def initialize(client, endpoint, kind = 'code.custom', result = nil)
       @client = client
       @endpoint = endpoint
       @kind = kind
       @result = result
 
-      @timestamp = Util.nearest_minute.to_i
+      @timestamp = Util.nanos
 
       @root_trace = Trace.new(self, ROOT_TRACE_NAME, ROOT_TRACE_NAME)
       @traces = [@root_trace]
@@ -28,7 +29,7 @@ module InfluxReporter
       @client.current_transaction = nil
     end
 
-    def done result = nil
+    def done(result = nil)
       @result = result
 
       @root_trace.done Util.nanos
@@ -41,7 +42,7 @@ module InfluxReporter
       @root_trace.done?
     end
 
-    def submit result = nil
+    def submit(result = nil)
       done result
 
       release
@@ -51,7 +52,7 @@ module InfluxReporter
       self
     end
 
-    def trace signature, kind = nil, extra = nil, &block
+    def trace(signature, kind = nil, extra = nil)
       trace = Trace.new(self, signature, kind, running_traces, extra)
 
       rel_time = current_offset
@@ -88,12 +89,11 @@ module InfluxReporter
     end
 
     def inspect
-      info = %w{endpoint kind result duration timestamp start_time}
-      <<-TEXT
-<Transaction #{info.map { |m| "#{m}:#{send(m).inspect}" }.join(' ')}>
-  #{traces.map(&:inspect).join("\n  ")}"
+      info = %w[endpoint kind result duration timestamp start_time]
+      <<~TEXT
+        <Transaction #{info.map { |m| "#{m}:#{send(m).inspect}" }.join(' ')}>
+          #{traces.map(&:inspect).join("\n  ")}"
       TEXT
     end
-
   end
 end

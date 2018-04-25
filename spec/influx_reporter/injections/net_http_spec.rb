@@ -1,16 +1,17 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 require 'open-uri'
 
 module InfluxReporter
   RSpec.describe 'net/http integration', start_without_worker: true do
-
-    it "is installed" do
+    it 'is installed' do
       reg = InfluxReporter::Injections.installed['Net::HTTP']
       expect(reg).to_not be_nil
     end
 
-    it "traces http calls" do
+    it 'traces http calls' do
       InfluxReporter::Injections.installed['Net::HTTP'].install
 
       WebMock.stub_request :get, 'http://example.com:80'
@@ -26,12 +27,9 @@ module InfluxReporter
 
       http_trace = transaction.traces.last
       expect(http_trace.signature).to eq 'GET example.com'
-      expect(http_trace.extra).to eq({
-        scheme: 'http',
-        port: 80,
-        path: '/'
-      })
+      expect(http_trace.extra).to eq(scheme: 'http',
+                                     port: 80,
+                                     path: '/')
     end
-
   end
 end

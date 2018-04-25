@@ -1,20 +1,21 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'influx_reporter'
 
 module InfluxReporter
   describe Transaction, mock_time: true do
-
-    describe "#initialize" do
-      it "has a root trace, timestamp and start time" do
+    describe '#initialize' do
+      it 'has a root trace, timestamp and start time' do
         transaction = Transaction.new nil, 'Test'
         expect(transaction.traces.length).to be 1
-        expect(transaction.timestamp).to eq 694224000
-        expect(transaction.start_time).to eq 694224000000000000
+        expect(transaction.timestamp).to eq 694_224_000
+        expect(transaction.start_time).to eq 694_224_000_000_000_000
       end
     end
 
-    describe "#release" do
-      it "sets clients current transaction to nil" do
+    describe '#release' do
+      it 'sets clients current transaction to nil' do
         client = Struct.new(:current_transaction).new(1)
         transaction = Transaction.new client, 'Test'
         transaction.release
@@ -22,8 +23,8 @@ module InfluxReporter
       end
     end
 
-    describe "#done" do
-      it "it sets result, durations and ends root trace" do
+    describe '#done' do
+      it 'it sets result, durations and ends root trace' do
         transaction = Transaction.new nil, 'Test'
 
         travel 100
@@ -35,8 +36,8 @@ module InfluxReporter
       end
     end
 
-    describe "#submit" do
-      it "ends transaction and submits it to the client" do
+    describe '#submit' do
+      it 'ends transaction and submits it to the client' do
         client = double('client', submit_transaction: true, :current_transaction= => true)
         transaction = Transaction.new client, 'Test'
 
@@ -50,8 +51,8 @@ module InfluxReporter
       end
     end
 
-    describe "#running_traces" do
-      it "returns running traces" do
+    describe '#running_traces' do
+      it 'returns running traces' do
         transaction = Transaction.new nil, 'Test'
 
         transaction.trace 'test' do
@@ -65,7 +66,7 @@ module InfluxReporter
       end
     end
 
-    describe "#trace" do
+    describe '#trace' do
       subject do
         transaction = Transaction.new nil, 'Test'
 
@@ -77,22 +78,21 @@ module InfluxReporter
 
         transaction.done
       end
-      it "creates a new trace" do
+      it 'creates a new trace' do
         expect(subject.traces.length).to be 2
       end
-      it "has root as a parent" do
+      it 'has root as a parent' do
         expect(subject.traces.last.parents).to eq [subject.traces.first]
       end
-      it "has a duration" do
+      it 'has a duration' do
         expect(subject.traces.last.duration).to eq 100_000_000
       end
-      it "has a relative start" do
+      it 'has a relative start' do
         expect(subject.traces.last.relative_start).to eq 100_000_000
       end
-      it "has a total duration" do
+      it 'has a total duration' do
         expect(subject.duration).to eq 200_000_000
       end
     end
-
   end
 end

@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   RSpec.describe Util::Inspector, start_without_worker: true, mock_time: true do
-
     let(:transaction) do
       InfluxReporter.transaction 'Test' do |transaction|
         travel 10
@@ -33,7 +34,7 @@ module InfluxReporter
     end
 
     # preview
-    it "is beautiful" do
+    it 'is beautiful' do
       puts subject
     end
   end

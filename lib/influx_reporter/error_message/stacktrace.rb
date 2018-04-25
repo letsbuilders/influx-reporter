@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   class ErrorMessage
     class Stacktrace
@@ -23,7 +25,7 @@ module InfluxReporter
       private
 
       class Frame < Struct.new(:filename, :lineno, :abs_path, :function, :vars,
-                               :pre_context, :context_line, :post_context)
+          :pre_context, :context_line, :post_context)
 
         BACKTRACE_REGEX = /^(.+?):(\d+)(?::in `(.+?)')?$/
 
@@ -46,10 +48,10 @@ module InfluxReporter
 
           def strip_load_path(path)
             prefix = $LOAD_PATH
-                     .map(&:to_s)
-                     .select { |s| path.start_with?(s) }
-                     .sort_by(&:length)
-                     .last
+                         .map(&:to_s)
+                         .select { |s| path.start_with?(s) }
+                         .sort_by(&:length)
+                         .last
 
             return path unless prefix
 

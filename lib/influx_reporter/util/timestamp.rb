@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   module Util
     module Timestamp
@@ -7,5 +9,3 @@ module InfluxReporter
     end
   end
 end
-
-

@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   RSpec.describe Worker do
-
     before do
       @queue = Queue.new
     end
@@ -12,30 +13,30 @@ module InfluxReporter
       Worker.new config, @queue, HttpClient.new(config)
     end
 
-    describe "#run" do
-      context "during a loop" do
+    describe '#run' do
+      context 'during a loop' do
         before { allow(worker).to receive(:loop).and_yield }
 
         subject { Thread.new { worker.run }.join 0.01 }
 
-        it "does nothing with an empty queue" do
+        it 'does nothing with an empty queue' do
           subject
           expect(WebMock).to_not have_requested(:any, /.*/)
         end
 
-        it "pops the queue" do
-          @queue << Worker::PostRequest.new('/errors/', {id: 1}.to_json)
-          @queue << Worker::PostRequest.new('/errors/', {id: 2}.to_json)
+        it 'pops the queue' do
+          @queue << Worker::PostRequest.new('/errors/', { id: 1 }.to_json)
+          @queue << Worker::PostRequest.new('/errors/', { id: 2 }.to_json)
 
           subject
 
-          expect(WebMock).to have_requested(:post, %r{/errors/$}).with(body: {id: 1})
-          expect(WebMock).to have_requested(:post, %r{/errors/$}).with(body: {id: 2})
+          expect(WebMock).to have_requested(:post, %r{/errors/$}).with(body: { id: 1 })
+          expect(WebMock).to have_requested(:post, %r{/errors/$}).with(body: { id: 2 })
         end
       end
 
-      context "can be stopped by sending a message" do
-        it "loops until stopped" do
+      context 'can be stopped by sending a message' do
+        it 'loops until stopped' do
           thread = Thread.new do
             worker.run
           end
@@ -49,6 +50,5 @@ module InfluxReporter
         end
       end
     end
-
   end
 end

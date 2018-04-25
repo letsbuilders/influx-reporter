@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
@@ -10,21 +12,21 @@ module InfluxReporter
       Filter.new config
     end
 
-    describe "#apply" do
-      it "filters a string" do
-        data = "password=SECRET&foo=bar&_secret=abc&pwd=de1&int_secret=123"
-        filtered_data = "password=[FILTERED]&foo=bar&_secret=[FILTERED]&pwd=[FILTERED]&int_secret=[FILTERED]"
-        expect(subject.apply data).to eq filtered_data
+    describe '#apply' do
+      it 'filters a string' do
+        data = 'password=SECRET&foo=bar&_secret=abc&pwd=de1&int_secret=123'
+        filtered_data = 'password=[FILTERED]&foo=bar&_secret=[FILTERED]&pwd=[FILTERED]&int_secret=[FILTERED]'
+        expect(subject.apply(data)).to eq filtered_data
       end
 
-      it "filters a hash" do
+      it 'filters a hash' do
         data = { password: 'SECRET', foo: :bar, _secret: 'abc', pwd: 'de1', int_secret: 123 }
         filtered_data = { password: '[FILTERED]',
                           foo: :bar,
                           _secret: '[FILTERED]',
                           pwd: '[FILTERED]',
-                          int_secret: '[FILTERED]'}
-        expect(subject.apply data).to eq filtered_data
+                          int_secret: '[FILTERED]' }
+        expect(subject.apply(data)).to eq filtered_data
       end
     end
   end

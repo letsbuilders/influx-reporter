@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   module DataBuilders
     RSpec.describe Transactions, mock_time: true, start_without_worker: true do
-
-      describe "#build" do
+      describe '#build' do
         subject do
           transaction1 = Transaction.new(nil, 'endpoint', 'special.kind')
           transaction2 = Transaction.new(nil, 'endpoint', 'special.kind')
@@ -29,14 +30,14 @@ module InfluxReporter
           DataBuilders::Transactions.new(Configuration.new).build transactions
         end
 
-        it "combines transactions by result" do
+        it 'combines transactions by result' do
           data = subject
           expect(data[:transactions].length).to be 2
           expect(data[:transactions].map { |t| t[:result] }).to eq [200, 500]
           expect(data[:transactions].map { |t| t[:durations] }.flatten).to eq [100.0, 100.0, 100.0, 300.0]
         end
 
-        it "combines traces" do
+        it 'combines traces' do
           data = subject
           expect(data[:traces].length). to be 2
           expect(data[:traces].first[:durations].length).to be 4
@@ -44,8 +45,6 @@ module InfluxReporter
           expect(data[:traces].last[:start_time].round).to eq 150
         end
       end
-
     end
-
   end
 end

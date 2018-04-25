@@ -1,20 +1,22 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   # @api private
   class SqlSummarizer
-    CACHE = {}
-    TBL = "[^ ]+".freeze
+    CACHE = {}.freeze
+    TBL = '[^ ]+'
     REGEXES = {
-      /^SELECT .* FROM (#{TBL})/i => "SELECT FROM ".freeze,
-      /^INSERT INTO (#{TBL})/i => "INSERT INTO ".freeze,
-      /^UPDATE (#{TBL})/i => "UPDATE ".freeze,
-      /^DELETE FROM (#{TBL})/i => "DELETE FROM ".freeze
+        /^SELECT .* FROM (#{TBL})/i => 'SELECT FROM ',
+        /^INSERT INTO (#{TBL})/i => 'INSERT INTO ',
+        /^UPDATE (#{TBL})/i => 'UPDATE ',
+        /^DELETE FROM (#{TBL})/i => 'DELETE FROM '
     }.freeze
 
-    def initialize config
+    def initialize(config)
       @config = config
     end
 
-    def signature_for sql
+    def signature_for(sql)
       return CACHE[sql] if CACHE[sql]
 
       result = REGEXES.find do |regex, sig|
@@ -23,7 +25,7 @@ module InfluxReporter
         end
       end
 
-      result || "SQL"
+      result || 'SQL'
     end
   end
 end

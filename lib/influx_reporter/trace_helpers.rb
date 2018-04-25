@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   module TraceHelpers
     module ClassMethods
-      def trace_class_method method, signature, kind
+      def trace_class_method(method, signature, kind)
         __trace_method_on(singleton_class, method, signature, kind)
       end
 

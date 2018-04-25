@@ -1,25 +1,27 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   # @api private
   module Logging
-    PREFIX = "** [Opbeat] ".freeze
+    PREFIX = '** [Opbeat] '
 
-    def debug *args, &block
+    def debug(*args, &block)
       config.logger.debug(log_message(*args, &block)) if has_logger?
     end
 
-    def info *args, &block
+    def info(*args, &block)
       config.logger.info(log_message(*args, &block)) if has_logger?
     end
 
-    def warn *args, &block
+    def warn(*args, &block)
       config.logger.warn(log_message(*args, &block)) if has_logger?
     end
 
-    def error *args, &block
+    def error(*args, &block)
       config.logger.error(log_message(*args, &block)) if has_logger?
     end
 
-    def fatal *args, &block
+    def fatal(*args, &block)
       config.logger.fatal(log_message(*args, &block)) if has_logger?
     end
 
@@ -29,8 +31,8 @@ module InfluxReporter
       respond_to?(:config) && config && config.logger
     end
 
-    def log_message *args, &block
-      msg = block_given? && block.call || args.first
+    def log_message(*args)
+      msg = block_given? && yield || args.first
       "#{PREFIX}#{msg}"
     end
   end

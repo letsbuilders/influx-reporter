@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'influx_reporter/version'
 require 'influx_reporter/configuration'
 
@@ -24,7 +26,7 @@ module InfluxReporter
   # Start the Opbeat client
   #
   # @param conf [Configuration] An Configuration object
-  def self.start! conf
+  def self.start!(conf)
     Client.start! conf
   end
 
@@ -44,7 +46,7 @@ module InfluxReporter
   # @param result [Object] Result of the transaction, eq `200` for a HTTP server
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
-  def self.transaction endpoint, kind = nil, result = nil, &block
+  def self.transaction(endpoint, kind = nil, result = nil, &block)
     unless client
       return yield if block_given?
       return nil
@@ -60,7 +62,7 @@ module InfluxReporter
   # @param extra [Hash] Extra information about the trace
   # @yield [Trace] Optional block encapsulating trace
   # @return [Trace] Unless block given
-  def self.trace signature, kind = nil, extra = nil, &block
+  def self.trace(signature, kind = nil, extra = nil, &block)
     unless client
       return yield if block_given?
       return nil
@@ -81,7 +83,7 @@ module InfluxReporter
   # Sets context for future errors
   #
   # @param context [Hash]
-  def self.set_context context
+  def self.set_context(context)
     return nil unless client
     client.set_context context
   end
@@ -90,7 +92,7 @@ module InfluxReporter
   #
   # @param context [Hash]
   # @yield [Trace] Block in which the context is used
-  def self.with_context context, &block
+  def self.with_context(context, &block)
     unless client
       return yield if block_given?
       return nil
@@ -105,7 +107,7 @@ module InfluxReporter
   # @param opts [Hash]
   # @option opts [Hash] :rack_env A rack env object
   # @return [Net::HTTPResponse]
-  def self.report exception, opts = {}
+  def self.report(exception, opts = {})
     unless client
       return yield if block_given?
       return nil
@@ -119,7 +121,7 @@ module InfluxReporter
   # @param message [String]
   # @param opts [Hash]
   # @return [Net::HTTPResponse]
-  def self.report_message message, opts = {}
+  def self.report_message(message, opts = {})
     unless client
       return yield if block_given?
       return nil
@@ -130,7 +132,7 @@ module InfluxReporter
 
   # Captures any exceptions raised inside the block
   #
-  def self.capture &block
+  def self.capture(&block)
     unless client
       return yield if block_given?
       return nil
@@ -145,7 +147,7 @@ module InfluxReporter
   # @option rel [String] :rev Revision
   # @option rel [String] :branch
   # @return [Net::HTTPResponse]
-  def self.release rel, opts = {}
+  def self.release(rel, opts = {})
     unless client
       return yield if block_given?
       return nil

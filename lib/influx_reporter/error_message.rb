@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'influx_reporter/line_cache'
 require 'influx_reporter/error_message/exception'
 require 'influx_reporter/error_message/stacktrace'
@@ -11,8 +13,8 @@ module InfluxReporter
     include Util::Timestamp
 
     DEFAULTS = {
-      level: :error,
-      logger: 'root'.freeze
+        level: :error,
+        logger: 'root'
     }.freeze
 
     def initialize(config, message, attrs = {})
@@ -58,7 +60,7 @@ module InfluxReporter
         msg.stacktrace = Stacktrace.from(config, exception)
       end
 
-      if frames = error_message.stacktrace && error_message.stacktrace.frames
+      if frames = error_message.stacktrace&.frames
         if first_frame = frames.last
           error_message.culprit = "#{first_frame.filename}:#{first_frame.lineno}:in `#{first_frame.function}'"
         end

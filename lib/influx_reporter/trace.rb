@@ -1,31 +1,32 @@
+# frozen_string_literal: true
+
 require 'influx_reporter/util'
 
 module InfluxReporter
   class Trace
+    DEFAULT_KIND = 'code.custom'
 
-    DEFAULT_KIND = 'code.custom'.freeze
-
-    def initialize transaction, signature, kind = nil, parents = [], extra = nil
+    def initialize(transaction, signature, kind = nil, parents = [], extra = nil)
       @transaction = transaction
       @signature = signature
       @kind = kind || DEFAULT_KIND
       @parents = parents || []
       @extra = extra
 
-      @timestamp = Util.nearest_minute.to_i
+      @timestamp = Util.nanos
     end
 
     attr_accessor :signature, :kind, :parents, :extra
     attr_reader :transaction, :timestamp, :duration, :relative_start, :start_time
 
-    def start relative_to
+    def start(relative_to)
       @start_time = Util.nanos
       @relative_start = start_time - relative_to
 
       self
     end
 
-    def done ms = Util.nanos
+    def done(ms = Util.nanos)
       @duration = ms - start_time
 
       self
@@ -40,7 +41,7 @@ module InfluxReporter
     end
 
     def inspect
-      info = %w{signature kind parents extra timestamp duration relative_start}
+      info = %w[signature kind parents extra timestamp duration relative_start]
       "<Trace #{info.map { |m| "#{m}:#{send(m).inspect}" }.join(' ')}>"
     end
   end

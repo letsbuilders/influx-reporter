@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   module DataBuilders
     class Transactions < DataBuilder
-      def build transactions
-        reduced = transactions.reduce({ transactions: {}, traces: {} }) do |data, transaction|
+      def build(transactions)
+        reduced = transactions.each_with_object(transactions: {}, traces: {}) do |transaction, data|
           key = [transaction.endpoint, transaction.result, transaction.timestamp]
 
           if data[:transactions][key].nil?
@@ -12,12 +14,9 @@ module InfluxReporter
           end
 
           combine_traces transaction.traces, data[:traces]
-
-          data
-        end.reduce({}) do |data, kv|
+        end.each_with_object({}) do |kv, data|
           key, collection = kv
           data[key] = collection.values
-          data
         end
 
         reduced[:traces].each do |trace|
@@ -35,7 +34,7 @@ module InfluxReporter
 
       private
 
-      def combine_traces traces, into
+      def combine_traces(traces, into)
         traces.each do |trace|
           key = [trace.transaction.endpoint, trace.signature, trace.timestamp]
 
@@ -51,33 +50,33 @@ module InfluxReporter
         end
       end
 
-      def build_transaction transaction
+      def build_transaction(transaction)
         {
-          transaction: transaction.endpoint,
-          result: transaction.result,
-          kind: transaction.kind,
-          timestamp: transaction.timestamp,
-          durations: [ms(transaction.duration)]
+            transaction: transaction.endpoint,
+            result: transaction.result,
+            kind: transaction.kind,
+            timestamp: transaction.timestamp,
+            durations: [ms(transaction.duration)]
         }
       end
 
-      def build_trace trace
+      def build_trace(trace)
         {
-          transaction: trace.transaction.endpoint,
-          signature: trace.signature,
-          durations: [[
-            ms(trace.duration),
-            ms(trace.transaction.duration)
-          ]],
-          start_time: [ms(trace.relative_start)],
-          kind: trace.kind,
-          timestamp: trace.timestamp,
-          parents: trace.parents && trace.parents.map(&:signature) || [],
-          extra: trace.extra
+            transaction: trace.transaction.endpoint,
+            signature: trace.signature,
+            durations: [[
+              ms(trace.duration),
+              ms(trace.transaction.duration)
+            ]],
+            start_time: [ms(trace.relative_start)],
+            kind: trace.kind,
+            timestamp: trace.timestamp,
+            parents: trace.parents&.map(&:signature) || [],
+            extra: trace.extra
         }
       end
 
-      def ms nanos
+      def ms(nanos)
         nanos.to_f / 1_000_000
       end
     end

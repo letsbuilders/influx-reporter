@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 begin
   require 'sidekiq'
 rescue LoadError
@@ -7,18 +9,16 @@ if defined? Sidekiq
   module InfluxReporter
     module Integration
       class Sidekiq
-        def call worker, msg, queue
-          begin
-            yield
-          rescue Exception => exception
-            if [Interrupt, SystemExit, SignalException].include? exception.class
-              raise exception
-            end
-
-            InfluxReporter.report exception
-
-            raise
+        def call(_worker, _msg, _queue)
+          yield
+        rescue Exception => exception
+          if [Interrupt, SystemExit, SignalException].include? exception.class
+            raise exception
           end
+
+          InfluxReporter.report exception
+
+          raise
         end
       end
     end

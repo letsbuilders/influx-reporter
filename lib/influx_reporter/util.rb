@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   # @api private
   module Util
@@ -8,19 +10,9 @@ module InfluxReporter
 
     def self.nanos
       now = Time.now.utc
-      now.to_i * 1_000_000_000 + now.usec * 1_000
+      now.to_i * 1_000_000_000 + now.nsec
     end
   end
 
   require 'influx_reporter/util/inspector'
-end
-
-# TODO: Maybe move this some place more explicit as we're extending
-# a pretty widely used class. Or maybe don't extend at all.
-if RUBY_VERSION.to_i <= 1
-  class Struct
-    def to_h
-      Hash[self.each_pair.to_a]
-    end
-  end
 end

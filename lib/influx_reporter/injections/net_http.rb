@@ -1,33 +1,35 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   module Injections
     module NetHTTP
       class Injector
         def install
           Net::HTTP.class_eval do
-            alias request_without_opb request
+            alias_method :request_without_opb, :request
 
-            def request req, body = nil, &block
+            def request(req, body = nil, &block)
               unless InfluxReporter.started?
                 return request_without_opb req, body, &block
               end
 
-              host, port = req['host'] && req['host'].split(':')
+              host, port = req['host']&.split(':')
               method = req.method
               path = req.path
               scheme = use_ssl? ? 'https' : 'http'
 
               # inside a session
-              host ||= self.address
-              port ||= self.port
+              host ||= address
+              port ||= port
 
               extra = {
-                scheme: scheme,
-                port: port,
-                path: path
+                  scheme: scheme,
+                  port: port,
+                  path: path
               }
 
-              signature = "#{method} #{host}".freeze
-              kind = "ext.net_http.#{method}".freeze
+              signature = "#{method} #{host}"
+              kind = "ext.net_http.#{method}"
 
               InfluxReporter.trace signature, kind, extra do
                 request_without_opb(req, body, &block)

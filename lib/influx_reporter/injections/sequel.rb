@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   module Injections
     module Sequel
       class Injector
-        KIND = 'db.sequel.sql'.freeze
+        KIND = 'db.sequel.sql'
 
         def self.sql_parser
           @sql_parser ||= SqlSummarizer.new(nil)

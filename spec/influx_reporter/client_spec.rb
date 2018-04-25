@@ -1,20 +1,21 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   RSpec.describe Client do
-
     let(:config) { Configuration.new app_id: 'x', organization_id: 'y', secret_token: 'z' }
 
-    describe ".start!" do
+    describe '.start!' do
       it "set's up an instance and only one" do
         first_instance = Client.start! config
         expect(Client.inst).to_not be_nil
-        expect(Client.start! config).to be first_instance
+        expect(Client.start!(config)).to be first_instance
       end
     end
 
-    describe ".stop!" do
-      it "kills the instance but flushes before" do
+    describe '.stop!' do
+      it 'kills the instance but flushes before' do
         Client.start! config
         Client.inst.submit_transaction Transaction.new(Client.inst, 'Test').done(200)
         Client.stop!
@@ -23,7 +24,7 @@ module InfluxReporter
       end
     end
 
-    context "without worker spec setting", start_without_worker: true do
+    context 'without worker spec setting', start_without_worker: true do
       it "doesn't start a Worker" do
         expect(Thread).to_not receive(:new)
         Client.start! config
@@ -31,50 +32,50 @@ module InfluxReporter
       end
     end
 
-    context "with a running client", start_without_worker: true do
+    context 'with a running client', start_without_worker: true do
       subject { Client.inst }
 
-      describe "#transaction" do
-        it "returns a new transaction and sets it as current" do
+      describe '#transaction' do
+        it 'returns a new transaction and sets it as current' do
           transaction = subject.transaction 'Test'
           expect(transaction).to_not be_nil
           expect(subject.current_transaction).to be transaction
         end
-        it "returns the current transaction if present" do
+        it 'returns the current transaction if present' do
           transaction = subject.transaction 'Test'
-          expect(subject.transaction 'Test').to eq transaction
+          expect(subject.transaction('Test')).to eq transaction
         end
-        context "with a block" do
-          it "yields transaction" do
-            blck = lambda { |*args| }
+        context 'with a block' do
+          it 'yields transaction' do
+            blck = ->(*args) {}
             allow(blck).to receive(:call)
-            subject.transaction('Test') { |t| blck.(t) }
+            subject.transaction('Test') { |t| blck.call(t) }
             expect(blck).to have_received(:call).with(Transaction)
           end
-          it "returns transaction" do
+          it 'returns transaction' do
             result = subject.transaction('Test') { "DON'T RETURN ME" }
             expect(result).to be_a Transaction
           end
         end
       end
 
-      describe "#trace" do
-        it "delegates to current transaction" do
+      describe '#trace' do
+        it 'delegates to current transaction' do
           subject.current_transaction = double('transaction', trace: true)
           subject.trace 1, 2, 3
           expect(subject.current_transaction).to have_received(:trace).with(1, 2, 3)
           subject.current_transaction = nil
         end
 
-        it "ignores when outside transaction" do
-          blk = Proc.new {}
+        it 'ignores when outside transaction' do
+          blk = proc {}
           allow(blk).to receive(:call)
           subject.trace { blk.call }
           expect(blk).to have_received(:call)
         end
       end
 
-      describe "#submit_transaction" do
+      describe '#submit_transaction' do
         it "doesn't send right away" do
           transaction = Transaction.new(subject, 'test')
 
@@ -94,7 +95,7 @@ module InfluxReporter
           expect(subject.queue.pop).to be_a Worker::PostRequest
         end
 
-        it "sends if interval is disabled" do
+        it 'sends if interval is disabled' do
           transaction = Transaction.new(subject, 'test')
           subject.config.transaction_post_interval = nil
           subject.submit_transaction transaction
@@ -102,8 +103,8 @@ module InfluxReporter
         end
       end
 
-      describe "#set_context" do
-        it "sets context for future errors" do
+      describe '#set_context' do
+        it 'sets context for future errors' do
           subject.set_context(additional_information: 'remember me')
 
           exception = Exception.new('BOOM')
@@ -114,8 +115,8 @@ module InfluxReporter
         end
       end
 
-      describe "#with_context" do
-        it "sets context for future errors" do
+      describe '#with_context' do
+        it 'sets context for future errors' do
           subject.with_context(additional_information: 'remember me') do
             exception = Exception.new('BOOM')
             subject.report exception
@@ -125,7 +126,7 @@ module InfluxReporter
           expect(subject.queue.pop.data[:extra]).to eq(additional_information: 'remember me')
         end
 
-        it "supports nested contexts" do
+        it 'supports nested contexts' do
           subject.with_context(info: 'a') do
             subject.with_context(more_info: 'b') do
               exception = Exception.new('BOOM')
@@ -137,7 +138,7 @@ module InfluxReporter
           expect(subject.queue.pop.data[:extra]).to eq(info: 'a', more_info: 'b')
         end
 
-        it "restores context for future errors" do
+        it 'restores context for future errors' do
           subject.set_context(info: 'hello')
 
           subject.with_context(additional_information: 'remember me') do
@@ -150,7 +151,7 @@ module InfluxReporter
           expect(subject.queue.pop.data[:extra]).to eq(info: 'hello')
         end
 
-        it "returns what is yielded" do
+        it 'returns what is yielded' do
           result = subject.with_context(additional_information: 'remember me') do
             42
           end
@@ -159,8 +160,8 @@ module InfluxReporter
         end
       end
 
-      describe "#report" do
-        it "builds and posts an exception" do
+      describe '#report' do
+        it 'builds and posts an exception' do
           exception = Exception.new('BOOM')
 
           subject.report exception
@@ -169,24 +170,24 @@ module InfluxReporter
           expect(subject.queue.pop).to be_a Worker::PostRequest
         end
 
-        it "skips nil exceptions" do
+        it 'skips nil exceptions' do
           subject.report nil
           expect(WebMock).to_not have_requested(:post, %r{/errors/$})
         end
       end
 
-      describe "#report_message" do
-        it "builds and posts an exception" do
-          subject.report_message "Massage message"
+      describe '#report_message' do
+        it 'builds and posts an exception' do
+          subject.report_message 'Massage message'
 
           expect(subject.queue.length).to be 1
           expect(subject.queue.pop).to be_a Worker::PostRequest
         end
       end
 
-      describe "#capture" do
-        it "captures exceptions and sends them off then raises them again" do
-          exception = Exception.new("BOOM")
+      describe '#capture' do
+        it 'captures exceptions and sends them off then raises them again' do
+          exception = Exception.new('BOOM')
 
           expect do
             subject.capture do
@@ -199,9 +200,9 @@ module InfluxReporter
         end
       end
 
-      describe "#release" do
-        it "notifies Opbeat of a release" do
-          release = { rev: "abc123", status: 'completed' }
+      describe '#release' do
+        it 'notifies Opbeat of a release' do
+          release = { rev: 'abc123', status: 'completed' }
 
           subject.release release
 
@@ -209,8 +210,8 @@ module InfluxReporter
           expect(subject.queue.pop).to be_a Worker::PostRequest
         end
 
-        it "may send inline" do
-          release = { rev: "abc123", status: 'completed' }
+        it 'may send inline' do
+          release = { rev: 'abc123', status: 'completed' }
 
           subject.release release, inline: true
 
@@ -219,7 +220,7 @@ module InfluxReporter
       end
     end
 
-    context "with performance disabled" do
+    context 'with performance disabled' do
       subject do
         InfluxReporter::Client.inst
       end
@@ -230,30 +231,30 @@ module InfluxReporter
       end
       after { InfluxReporter.stop! }
 
-      describe "#transaction" do
-        it "yields" do
-          block = lambda { }
+      describe '#transaction' do
+        it 'yields' do
+          block = -> {}
           expect(block).to receive(:call)
           Client.inst.transaction('Test') { block.call }
         end
-        it "returns nil" do
-          expect(Client.inst.transaction 'Test').to be_nil
+        it 'returns nil' do
+          expect(Client.inst.transaction('Test')).to be_nil
         end
       end
 
-      describe "#trace" do
-        it "yields" do
-          block = lambda { }
+      describe '#trace' do
+        it 'yields' do
+          block = -> {}
           expect(block).to receive(:call)
           Client.inst.trace('Test', 'trace') { block.call }
         end
-        it "returns nil" do
-          expect(Client.inst.trace 'Test', 'test').to be_nil
+        it 'returns nil' do
+          expect(Client.inst.trace('Test', 'test')).to be_nil
         end
       end
     end
 
-    context "with errors disabled" do
+    context 'with errors disabled' do
       subject do
         InfluxReporter::Client.inst
       end
@@ -264,7 +265,7 @@ module InfluxReporter
       end
       after { InfluxReporter.stop! }
 
-      describe "#report" do
+      describe '#report' do
         it "doesn't do anything" do
           exception = Exception.new('BOOM')
 
@@ -274,6 +275,5 @@ module InfluxReporter
         end
       end
     end
-
   end
 end

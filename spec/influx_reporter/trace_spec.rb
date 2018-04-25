@@ -1,17 +1,18 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module InfluxReporter
   describe Trace, mock_time: true do
-
-    describe "#initialize" do
-      it "has a timestamp" do
+    describe '#initialize' do
+      it 'has a timestamp' do
         trace = Trace.new nil, 'test'
-        expect(trace.timestamp).to eq Time.now.utc.to_i
+        expect(trace.timestamp).to eq (Time.now.utc.to_i * 1_000_000_000 + Time.now.utc.nsec)
       end
     end
 
-    describe "#start" do
-      it "has a relative and absolute start time with a transaction" do
+    describe '#start' do
+      it 'has a relative and absolute start time with a transaction' do
         transaction = Transaction.new(nil, 'Test')
         travel 400
         trace = transaction.trace 'test-1' do
@@ -27,8 +28,8 @@ module InfluxReporter
       end
     end
 
-    describe "#done" do
-      it "sets duration" do
+    describe '#done' do
+      it 'sets duration' do
         transaction = Transaction.new nil, 'Test'
         trace = Trace.new(transaction, 'test').start transaction.start_time
         travel 100
@@ -38,6 +39,5 @@ module InfluxReporter
         expect(trace).to be_done
       end
     end
-
   end
 end

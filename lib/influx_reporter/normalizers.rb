@@ -1,13 +1,14 @@
+# frozen_string_literal: true
+
 module InfluxReporter
   # @api private
   module Normalizers
-
     class Normalizer
-      def self.register name
+      def self.register(name)
         Normalizers.register name, self
       end
 
-      def initialize config
+      def initialize(config)
         @config = config
       end
 
@@ -15,29 +16,28 @@ module InfluxReporter
     end
 
     class Default < Normalizer
-      def normalize transaction, name, payload
+      def normalize(_transaction, _name, _payload)
         :skip
       end
     end
 
     DEFAULT = Default.new nil
 
-    def self.register name, cls
+    def self.register(name, cls)
       (@registered ||= {})[name] = cls
     end
 
-    def self.build config
-      normalizers = @registered.reduce({}) do |coll, kv|
+    def self.build(config)
+      normalizers = @registered.each_with_object({}) do |kv, coll|
         name, cls = kv
         coll[name] = cls.new config
-        coll
       end
 
       Container.new(normalizers)
     end
 
     class Container
-      def initialize normalizers
+      def initialize(normalizers)
         @normalizers = normalizers
       end
 
@@ -45,20 +45,20 @@ module InfluxReporter
         @normalizers.keys
       end
 
-      def normalizer_for name
+      def normalizer_for(name)
         @normalizers[name] || DEFAULT
       end
 
-      def normalize transaction, name, payload
+      def normalize(transaction, name, payload)
         normalizer_for(name).normalize transaction, name, payload
       end
     end
 
-    %w{
+    %w[
       action_controller
       active_record
       action_view
-    }.each do |f|
+    ].each do |f|
       require "influx_reporter/normalizers/#{f}"
     end
   end

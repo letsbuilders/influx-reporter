@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'thread'
 require 'influx_reporter/subscriber'
 require 'influx_reporter/http_client'
@@ -19,7 +21,8 @@ module InfluxReporter
       def current
         Thread.current[KEY]
       end
-      def current= transaction
+
+      def current=(transaction)
         Thread.current[KEY] = transaction
       end
     end
@@ -30,7 +33,7 @@ module InfluxReporter
       @instance
     end
 
-    def self.start! config = nil
+    def self.start!(config = nil)
       return @instance if @instance
 
       LOCK.synchronize do
@@ -48,15 +51,15 @@ module InfluxReporter
       end
     end
 
-    def initialize config
+    def initialize(config)
       @config = config
 
       @http_client = HttpClient.new config
       @queue = Queue.new
 
       @data_builders = Struct.new(:transactions, :error_message).new(
-        DataBuilders::Transactions.new(config),
-        DataBuilders::Error.new(config)
+          DataBuilders::Transactions.new(config),
+          DataBuilders::Error.new(config)
       )
 
       unless config.disable_performance
@@ -71,9 +74,9 @@ module InfluxReporter
     attr_reader :config, :queue, :pending_transactions
 
     def start!
-      info "Starting client"
+      info 'Starting client'
 
-      @subscriber.register! if @subscriber
+      @subscriber&.register!
 
       self
     end
@@ -94,11 +97,11 @@ module InfluxReporter
       @transaction_info.current
     end
 
-    def current_transaction= transaction
+    def current_transaction=(transaction)
       @transaction_info.current = transaction
     end
 
-    def transaction endpoint, kind = nil, result = nil, &block
+    def transaction(endpoint, kind = nil, result = nil)
       if config.disable_performance
         return yield if block_given?
         return nil
@@ -116,7 +119,6 @@ module InfluxReporter
 
       begin
         yield transaction
-
       ensure
         self.current_transaction = nil
         transaction.done
@@ -125,7 +127,7 @@ module InfluxReporter
       transaction
     end
 
-    def trace *args, &block
+    def trace(*args, &block)
       if config.disable_performance
         return yield if block_given?
         return nil
@@ -139,7 +141,7 @@ module InfluxReporter
       transaction.trace(*args, &block)
     end
 
-    def submit_transaction transaction
+    def submit_transaction(transaction)
       ensure_worker_running
 
       if config.debug_traces
@@ -150,9 +152,7 @@ module InfluxReporter
 
       @pending_transactions << transaction
 
-      if should_send_transactions?
-        flush_transactions
-      end
+      flush_transactions if should_send_transactions?
     end
 
     def flush_transactions
@@ -169,11 +169,11 @@ module InfluxReporter
 
     # errors
 
-    def set_context context
+    def set_context(context)
       @context = context
     end
 
-    def with_context context, &block
+    def with_context(context)
       current = @context
 
       set_context((current || {}).merge(context))
@@ -183,15 +183,13 @@ module InfluxReporter
       set_context(current)
     end
 
-    def report exception, opts = {}
+    def report(exception, opts = {})
       return if config.disable_errors
       return unless exception
 
       ensure_worker_running
 
-      unless exception.backtrace
-        exception.set_backtrace caller
-      end
+      exception.set_backtrace caller unless exception.backtrace
 
       if error_message = ErrorMessage.from_exception(config, exception, opts)
         error_message.add_extra(@context) if @context
@@ -200,7 +198,7 @@ module InfluxReporter
       end
     end
 
-    def report_message message, opts = {}
+    def report_message(message, opts = {})
       return if config.disable_errors
 
       ensure_worker_running
@@ -211,12 +209,12 @@ module InfluxReporter
       enqueue Worker::PostRequest.new('/errors/', data)
     end
 
-    def capture &block
+    def capture
       unless block_given?
         return Kernel.at_exit do
-          if $!
-            debug $!.inspect
-            report $!
+          if $ERROR_INFO
+            debug $ERROR_INFO.inspect
+            report $ERROR_INFO
           end
         end
       end
@@ -233,7 +231,7 @@ module InfluxReporter
 
     # releases
 
-    def release rel, opts = {}
+    def release(rel, opts = {})
       rev = rel[:rev]
       if opts[:inline]
         debug "Sending release #{rev}"
@@ -246,18 +244,16 @@ module InfluxReporter
 
     private
 
-    def enqueue request
+    def enqueue(request)
       @queue << request
     end
 
     def start_worker
       return if worker_running?
 
-      if config.disable_worker
-        return
-      end
+      return if config.disable_worker
 
-      info "Starting worker in thread"
+      info 'Starting worker in thread'
 
       @worker_thread = Thread.new do
         begin
@@ -274,7 +270,7 @@ module InfluxReporter
       return unless worker_running?
       @queue << Worker::StopMessage.new
       unless @worker_thread.join(config.worker_quit_timeout)
-        error "Failed to wait for worker, not all messages sent"
+        error 'Failed to wait for worker, not all messages sent'
       end
       @worker_thread = nil
     end
@@ -289,7 +285,7 @@ module InfluxReporter
     end
 
     def worker_running?
-      @worker_thread && @worker_thread.alive?
+      @worker_thread&.alive?
     end
 
     def unregister!
@@ -301,6 +297,5 @@ module InfluxReporter
 
       Time.now.utc - @last_sent_transactions > config.transaction_post_interval
     end
-
   end
 end
