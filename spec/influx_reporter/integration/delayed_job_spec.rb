@@ -18,14 +18,14 @@ if defined?(Delayed)
   )
   Delayed::Worker.backend = Delayed::Backend::Test::Job
 
-  describe Delayed::Plugins::Opbeat, start_without_worker: true do
+  describe Delayed::Plugins::InfluxReporter, start_without_worker: true do
     class MyJob
       def blow_up(e)
         raise e
       end
     end
 
-    it 'reports exceptions to Opbeat' do
+    it 'reports exceptions to InfluxReporter' do
       exception = Exception.new('BOOM')
 
       MyJob.new.delay.blow_up exception

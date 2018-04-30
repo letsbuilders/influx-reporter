@@ -27,7 +27,7 @@ module InfluxReporter
       debug "POST #{resource}"
 
       unless state.should_try?
-        info 'Temporarily skipping sending to Opbeat due to previous failure.'
+        info 'Temporarily skipping sending to InfluxReporter due to previous failure.'
         return
       end
 
@@ -44,7 +44,7 @@ module InfluxReporter
       begin
         response = adapter.perform_request request
         unless response.code.to_i.between?(200, 299)
-          raise Error, "Error from Opbeat server (#{response.code}): #{response.body}"
+          raise Error, "Error from InfluxReporter server (#{response.code}): #{response.body}"
         end
       rescue
         debug { JSON.parse(body).inspect }

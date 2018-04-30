@@ -19,7 +19,7 @@ module InfluxReporter
     subject { InfluxReporter::Injections }
 
     it 'installs right away if constant is defined' do
-      subject.register 'Opbeat', 'influx_reporter', probe
+      subject.register 'InfluxReporter', 'influx_reporter', probe
       expect(probe.installations).to be 1
     end
 

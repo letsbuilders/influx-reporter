@@ -9,11 +9,11 @@ module InfluxReporter
         after 'deploy:migrations', 'influx_reporter:notify'
         after 'deploy:cold',       'influx_reporter:notify'
         namespace :influx_reporter do
-          desc 'Notifies Opbeat of new deployments'
+          desc 'Notifies InfluxReporter of new deployments'
           task :notify, except: { no_release: true } do
             scm = fetch(:scm)
             if scm.to_s != 'git'
-              puts 'Skipping Opbeat deployment notification because scm is not git.'
+              puts 'Skipping InfluxReporter deployment notification because scm is not git.'
               next
             end
 

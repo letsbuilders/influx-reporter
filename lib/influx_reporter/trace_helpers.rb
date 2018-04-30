@@ -14,7 +14,7 @@ module InfluxReporter
           alias :"__without_opb_#{method}" :"#{method}"
 
           def #{method}(*args, &block)
-            Opbeat.trace "#{signature}", "#{kind}" do
+            InfluxReporter.trace "#{signature}", "#{kind}" do
               __without_opb_#{method}(*args, &block)
             end
           end

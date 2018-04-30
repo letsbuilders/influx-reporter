@@ -20,16 +20,21 @@ module InfluxReporter
 
               # inside a session
               host ||= address
-              port ||= port
+              port ||= use_ssl? ? 443 : 80
 
               extra = {
-                  scheme: scheme,
-                  port: port,
-                  path: path
+                  tags: {
+                      scheme: scheme,
+                      port: port,
+                      method: method
+                  },
+                  values: {
+                      path: path
+                  }
               }
 
-              signature = "#{method} #{host}"
-              kind = "ext.net_http.#{method}"
+              signature = host
+              kind = 'ext.net_http'
 
               InfluxReporter.trace signature, kind, extra do
                 request_without_opb(req, body, &block)

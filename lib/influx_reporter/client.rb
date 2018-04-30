@@ -222,7 +222,7 @@ module InfluxReporter
       begin
         yield
       rescue Error => e
-        raise # Don't capture Opbeat errors
+        raise # Don't capture InfluxReporter errors
       rescue Exception => e
         report e
         raise

@@ -9,13 +9,13 @@ end
 if defined?(Delayed)
   module Delayed
     module Plugins
-      class Opbeat < Delayed::Plugin
+      class InfluxReporter < Delayed::Plugin
         callbacks do |lifecycle|
           lifecycle.around(:invoke_job) do |job, *args, &block|
             begin
               block.call(job, *args)
             rescue ::InfluxReporter::Error
-              raise # don't report Opbeat errors
+              raise # don't report InfluxReporter errors
             rescue Exception => exception
               ::InfluxReporter.report exception
               raise
@@ -26,5 +26,5 @@ if defined?(Delayed)
     end
   end
 
-  Delayed::Worker.plugins << Delayed::Plugins::Opbeat
+  Delayed::Worker.plugins << Delayed::Plugins::InfluxReporter
 end

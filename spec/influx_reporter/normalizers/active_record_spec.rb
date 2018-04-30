@@ -28,7 +28,7 @@ module InfluxReporter
           signature, kind, extra = normalize(name: 'Hotdogs load', sql: sql)
           expect(signature).to eq 'SELECT FROM "hotdogs"'
           expect(kind).to eq 'db.unknown.sql'
-          expect(extra).to eq sql: sql
+          expect(extra[:values]).to eq sql: sql
         end
 
         it 'normalizes INSERT queries' do

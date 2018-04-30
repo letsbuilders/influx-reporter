@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :influx_reporter do
-  desc 'Notify Opbeat of a release'
+  desc 'Notify InfluxReporter of a release'
   task release: :environment do
     unless rev = ENV['REV']
       puts "Please specify a revision in an env variable\n" \

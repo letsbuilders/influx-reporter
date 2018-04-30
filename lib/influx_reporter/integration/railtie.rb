@@ -18,15 +18,15 @@ module InfluxReporter
       if config.enabled_environments.include?(Rails.env)
         if InfluxReporter.start!(config)
           app.config.middleware.insert 0, Middleware
-          Rails.logger.info '** [Opbeat] Client running'
+          Rails.logger.info '** [InfluxReporter] Client running'
         else
           # :nocov:
-          Rails.logger.info '** [Opbeat] Failed to start'
+          Rails.logger.info '** [InfluxReporter] Failed to start'
           # :nocov:
         end
       else
         # :nocov:
-        Rails.logger.info "** [Opbeat] Disabled in #{Rails.env} environment"
+        Rails.logger.info "** [InfluxReporter] Disabled in #{Rails.env} environment"
         # :nocov:
       end
     end

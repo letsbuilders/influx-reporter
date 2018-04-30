@@ -23,12 +23,12 @@ module InfluxReporter
     %w[fatal error info debug warn].map(&:to_sym).each do |level|
       it "does #{level} with args" do
         send level, 'msg'
-        expect(logger.calls.last).to eq [level, '** [Opbeat] msg']
+        expect(logger.calls.last).to eq [level, '** [InfluxReporter] msg']
       end
       it "does #{level} with block" do
         blck = -> { 'msg' }
         send level, &blck
-        expect(logger.calls.last).to eq [level, '** [Opbeat] msg']
+        expect(logger.calls.last).to eq [level, '** [InfluxReporter] msg']
       end
     end
 

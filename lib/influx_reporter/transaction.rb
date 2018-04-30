@@ -72,6 +72,16 @@ module InfluxReporter
       result
     end
 
+    def extra_tags
+      @root_trace.extra[:tags] ||= {}
+      yield @root_trace.extra[:tags]
+    end
+
+    def extra_values
+      @root_trace.extra[:values] ||= {}
+      yield @root_trace.extra[:values]
+    end
+
     def running_traces
       traces.select(&:running?)
     end

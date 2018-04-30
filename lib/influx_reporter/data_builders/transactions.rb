@@ -1,79 +1,112 @@
 # frozen_string_literal: true
+require 'influx_reporter/transaction'
 
 module InfluxReporter
   module DataBuilders
     class Transactions < DataBuilder
       def build(transactions)
-        reduced = transactions.each_with_object(transactions: {}, traces: {}) do |transaction, data|
-          key = [transaction.endpoint, transaction.result, transaction.timestamp]
-
-          if data[:transactions][key].nil?
-            data[:transactions][key] = build_transaction(transaction)
-          else
-            data[:transactions][key][:durations] << ms(transaction.duration)
+        data_points = []
+        transactions.each do |transaction|
+          data_points << build_transaction(transaction)
+          transaction.traces.each do |trace|
+            next if trace.kind == InfluxReporter::Transaction::ROOT_TRACE_NAME
+            data_points << build_trace(trace)
           end
-
-          combine_traces transaction.traces, data[:traces]
-        end.each_with_object({}) do |kv, data|
-          key, collection = kv
-          data[key] = collection.values
         end
-
-        reduced[:traces].each do |trace|
-          # traces' start time is average across collected
-          trace[:start_time] = trace[:start_time].reduce(0, :+) / trace[:start_time].length
-        end
-
-        # preserve root
-        root = reduced[:traces].shift
-        # re-add root
-        reduced[:traces].unshift root
-
-        reduced
+        data_points
       end
 
       private
 
-      def combine_traces(traces, into)
-        traces.each do |trace|
-          key = [trace.transaction.endpoint, trace.signature, trace.timestamp]
-
-          if into[key].nil?
-            into[key] = build_trace(trace)
-          else
-            into[key][:durations] << [
-              ms(trace.duration),
-              ms(trace.transaction.duration)
-            ]
-            into[key][:start_time] << ms(trace.relative_start)
-          end
-        end
-      end
-
+      # @param transaction [InfluxReporter::Transaction]
       def build_transaction(transaction)
         {
-            transaction: transaction.endpoint,
-            result: transaction.result,
-            kind: transaction.kind,
-            timestamp: transaction.timestamp,
-            durations: [ms(transaction.duration)]
+            series: series(transaction),
+            tags: tags(transaction),
+            values: values(transaction),
+            timestamp: transaction.timestamp
         }
       end
 
+      # @param transaction [InfluxReporter::Transaction, InfluxReporter::Trace]
+      # @return [String]
+      def series(transaction)
+        transaction.kind.split('.').first(2).join('.')
+      end
+
+      # @param transaction [InfluxReporter::Transaction]
+      # @return [Hash]
+      def tags(transaction)
+        tags = {
+            endpoint: transaction.endpoint,
+            result: transaction.result.to_i,
+            kind: transaction.kind.split('.')[2..-1].join('.')
+        }
+        tags = (transaction.root_trace.extra[:tags] || {}).merge(tags)
+        clean tags
+      end
+
+      # @param transaction [InfluxReporter::Transaction]
+      # @return [Hash]
+      def values(transaction)
+        values = {
+            duration: ms(transaction.duration)
+        }.merge(values_from_traces(transaction))
+        values = (transaction.root_trace.extra[:values] || {}).merge(values)
+        clean values
+      end
+
+      # @param transaction [InfluxReporter::Transaction]
+      # @return [Hash]
+      def values_from_traces(transaction)
+        values = {}
+        transaction.traces.each do |trace|
+          next if trace.signature == InfluxReporter::Transaction::ROOT_TRACE_NAME || trace.transaction.root_trace == trace
+          values["#{trace.kind}.count"] ||= 0
+          values["#{trace.kind}.duration"] ||= 0
+          values["#{trace.kind}.count"] += 1
+          values["#{trace.kind}.duration"] += ms(trace.duration)
+        end
+        values
+      end
+
+      # @param trace [InfluxReporter::Trace]
+      # @return [Hash]
       def build_trace(trace)
         {
-            transaction: trace.transaction.endpoint,
-            signature: trace.signature,
-            durations: [[
-              ms(trace.duration),
-              ms(trace.transaction.duration)
-            ]],
-            start_time: [ms(trace.relative_start)],
-            kind: trace.kind,
-            timestamp: trace.timestamp,
-            parents: trace.parents&.map(&:signature) || [],
-            extra: trace.extra
+            series: "trace.#{trace.kind.split('.').first}",
+            tags: trace_tags(trace),
+            values: trace_values(trace),
+            timestamp: trace.timestamp
         }
+      end
+
+      # @param trace [InfluxReporter::Trace]
+      def trace_tags(trace)
+        tags = {
+            endpoint: trace.transaction.endpoint,
+            signature: trace.signature,
+            kind: trace.kind.split('.')[1..-1].join('.')
+        }
+        (trace.transaction.root_trace.extra[:tags] || {}).merge(trace.extra[:tags] || {}).merge(tags)
+        clean tags
+      end
+
+      # @param trace [InfluxReporter::Trace]
+
+      def trace_values(trace)
+        values = {
+            duration: ms(trace.duration),
+            start_time: ms(trace.relative_start)
+        }
+        values = (trace.extra[:values] || {}).merge(values)
+        clean values
+      end
+
+      # @param hash [Hash]
+      # @return [Hash]
+      def clean(hash)
+        hash.reject { |_, value| value.nil? || value == '' }
       end
 
       def ms(nanos)

@@ -12,7 +12,7 @@ module InfluxReporter
         resp = @app.call env
         resp[2] = BodyProxy.new(resp[2]) { transaction.submit(resp[0]) } if transaction
       rescue Error
-        raise # Don't report Opbeat errors
+        raise # Don't report InfluxReporter errors
       rescue Exception => e
         InfluxReporter.report e, rack_env: env
         transaction&.submit(500)

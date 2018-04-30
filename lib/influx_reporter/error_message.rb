@@ -10,7 +10,6 @@ require 'influx_reporter/util/timestamp'
 module InfluxReporter
   class ErrorMessage
     extend Logging
-    include Util::Timestamp
 
     DEFAULTS = {
         level: :error,
@@ -21,7 +20,7 @@ module InfluxReporter
       @config = config
 
       @message = message
-      @timestamp = timestamp
+      @timestamp = Util.nanos
 
       DEFAULTS.merge(attrs).each do |k, v|
         send(:"#{k}=", v)

@@ -36,7 +36,7 @@ module InfluxReporter
         expect(error.stacktrace.frames.length).to_not be 0
         expect(error.stacktrace.frames.map(&:class).uniq)
             .to eq [ErrorMessage::Stacktrace::Frame]
-        expect(error.culprit).to eq "influx_reporter/error_message_spec.rb:9:in `/'"
+        expect(error.culprit).to eq "influx_reporter/error_message_spec.rb:10:in `/'"
       end
 
       it 'skips excluded exceptions' do

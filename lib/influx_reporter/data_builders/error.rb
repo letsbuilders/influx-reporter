@@ -10,7 +10,7 @@ module InfluxReporter
         h = {
             data: build_values(error_message),
             tags: build_tags(error_message),
-            timestamp: error_message.formatted_timestamp
+            timestamp: error_message.timestamp
         }
 
         h = error_message.extra.merge(h) if error_message.extra

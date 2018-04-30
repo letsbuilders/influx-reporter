@@ -23,14 +23,14 @@ require 'influx_reporter/integration/sidekiq'
 require 'influx_reporter/integration/resque'
 
 module InfluxReporter
-  # Start the Opbeat client
+  # Start the InfluxReporter client
   #
   # @param conf [Configuration] An Configuration object
   def self.start!(conf)
     Client.start! conf
   end
 
-  # Stop the Opbeat client
+  # Stop the InfluxReporter client
   def self.stop!
     Client.stop!
   end
@@ -101,7 +101,7 @@ module InfluxReporter
     client.with_context context, &block
   end
 
-  # Send an exception to Opbeat
+  # Send an exception to InfluxReporter
   #
   # @param exception [Exception]
   # @param opts [Hash]
@@ -116,7 +116,7 @@ module InfluxReporter
     client.report exception, opts
   end
 
-  # Send an exception to Opbeat
+  # Send an exception to InfluxReporter
   #
   # @param message [String]
   # @param opts [Hash]
@@ -141,7 +141,7 @@ module InfluxReporter
     client.capture(&block)
   end
 
-  # Notify Opbeat of a release
+  # Notify InfluxReporter of a release
   #
   # @param rel [Hash]
   # @option rel [String] :rev Revision

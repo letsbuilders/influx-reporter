@@ -21,7 +21,7 @@ module InfluxReporter
         # so meta
         last_frame = stacktrace.frames.last
         expect(last_frame.filename).to eq 'influx_reporter/error_message/stacktrace_spec.rb'
-        expect(last_frame.lineno).to be 7
+        expect(last_frame.lineno).to be 8
         expect(last_frame.abs_path).to_not be_nil
         expect(last_frame.function).to eq '/'
         expect(last_frame.vars).to be_nil

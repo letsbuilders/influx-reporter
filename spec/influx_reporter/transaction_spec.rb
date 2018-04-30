@@ -9,7 +9,7 @@ module InfluxReporter
       it 'has a root trace, timestamp and start time' do
         transaction = Transaction.new nil, 'Test'
         expect(transaction.traces.length).to be 1
-        expect(transaction.timestamp).to eq 694_224_000
+        expect(transaction.timestamp).to eq 694_224_000_000_000_000
         expect(transaction.start_time).to eq 694_224_000_000_000_000
       end
     end

@@ -31,7 +31,7 @@ module InfluxReporter
             req.user_agent,                              # user agent
             req.scheme == 'https', # secure
             {}, # env
-            req.uuid
+            req.respond_to?(:uuid) ? req.uuid : nil
         )
 
         # In Rails < 5 ActionDispatch::Request inherits from Hash

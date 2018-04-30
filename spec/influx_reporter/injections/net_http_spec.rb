@@ -26,10 +26,10 @@ module InfluxReporter
       expect(transaction.traces.length).to be 2
 
       http_trace = transaction.traces.last
-      expect(http_trace.signature).to eq 'GET example.com'
-      expect(http_trace.extra).to eq(scheme: 'http',
-                                     port: 80,
-                                     path: '/')
+      expect(http_trace.signature).to eq 'example.com'
+      expect(http_trace.extra).to eq(tags: { scheme: 'http', port: 80, method: 'GET' },
+                                     values: { path: '/' }
+                                     )
     end
   end
 end

@@ -3,7 +3,7 @@
 module InfluxReporter
   # @api private
   class LineCache
-    CACHE = {}.freeze
+    CACHE = {}
 
     def self.all(path)
       CACHE[path] ||= begin

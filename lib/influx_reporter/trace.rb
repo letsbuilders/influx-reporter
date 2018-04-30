@@ -11,7 +11,7 @@ module InfluxReporter
       @signature = signature
       @kind = kind || DEFAULT_KIND
       @parents = parents || []
-      @extra = extra
+      @extra = extra || {}
 
       @timestamp = Util.nanos
     end

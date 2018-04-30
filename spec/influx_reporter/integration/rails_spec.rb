@@ -89,6 +89,6 @@ describe 'Rails integration' do
 
     get '/404'
 
-    expect(Rails.logger).to have_received(:error).with(/\*\* \[Opbeat\] Error capturing/)
+    expect(Rails.logger).to have_received(:error).with(/\*\* \[InfluxReporter\] Error capturing/)
   end
 end

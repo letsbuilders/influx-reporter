@@ -15,7 +15,7 @@ RSpec.describe InfluxReporter do
 
   it { should delegate :stop!, to: InfluxReporter }
 
-  describe 'when Opbeat is started', start: true do
+  describe 'when InfluxReporter is started', start: true do
     it { should be_started }
 
     it { should delegate :transaction, to: InfluxReporter::Client.inst, args: ['Test', nil, nil] }

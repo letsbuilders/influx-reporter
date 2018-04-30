@@ -69,7 +69,7 @@ module InfluxReporter
 
     def validate!
       %w[app_id secret_token organization_id].each do |key|
-        raise Error, "Opbeat Configuration missing `#{key}'" unless send(key)
+        raise Error, "InfluxReporter Configuration missing `#{key}'" unless send(key)
       end
 
       true

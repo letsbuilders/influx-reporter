@@ -201,7 +201,7 @@ module InfluxReporter
       end
 
       describe '#release' do
-        it 'notifies Opbeat of a release' do
+        it 'notifies InfluxReporter of a release' do
           release = { rev: 'abc123', status: 'completed' }
 
           subject.release release

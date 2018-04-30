@@ -29,7 +29,9 @@ module InfluxReporter
 
           return :skip if signature == 'SELECT FROM "schema_migrations"'
 
-          [signature, @kind, { sql: payload[:sql] }]
+          extra = payload[:sql].length < 256 ? { values: { sql: payload[:sql] } } : nil
+
+          [signature, @kind, extra]
         end
 
         private

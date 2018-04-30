@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 namespace :influx_reporter do
-  desc 'Notifies Opbeat of new releases'
+  desc 'Notifies InfluxReporter of new releases'
   task :notify do
     on roles(:app) do
       scm = fetch(:scm)
       if scm.to_s != 'git'
-        info 'Skipping Opbeat release because scm is not git.'
+        info 'Skipping InfluxReporter release because scm is not git.'
         next
       end
 

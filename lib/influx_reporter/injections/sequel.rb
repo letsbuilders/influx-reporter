@@ -21,8 +21,8 @@ module InfluxReporter
 
             def #{log_method} sql, *args, &block
               #{log_method}_without_opb(sql, *args) do
-                sig = Opbeat::Injections::Sequel::Injector.sql_parser.signature_for(sql)
-                Opbeat.trace(sig, KIND, sql: sql) do
+                sig = InfluxReporter::Injections::Sequel::Injector.sql_parser.signature_for(sql)
+                InfluxReporter.trace(sig, KIND, sql: sql) do
                   block.call
                 end
               end
