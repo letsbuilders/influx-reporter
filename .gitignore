@@ -1,7 +1,7 @@
 doc
 coverage
 Gemfile.lock
-opbeat*.gem
+influx_reporter*.gem
 .yardoc
 profile-*
 pkg

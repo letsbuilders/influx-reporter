@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV['RACK_ENV'] = 'test'
 
 DEBUG = ENV.fetch('CI', false)
@@ -9,12 +11,12 @@ require 'webmock/rspec'
 
 SimpleCov.start
 
-require 'opbeat'
+require 'influx_reporter'
 
-module Opbeat
+module InfluxReporter
   class Configuration
     # Override defaults to enable http (caught by WebMock) in test env
-    defaults = DEFAULTS.dup.merge enabled_environments: %w{test}
+    defaults = DEFAULTS.dup.merge enabled_environments: %w[test]
     remove_const(:DEFAULTS)
     const_set(:DEFAULTS, defaults.freeze)
   end
@@ -24,13 +26,13 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns += [%r{/gems/}]
 
   config.before :each do
-    @request_stub = stub_request(:post, /intake\.opbeat\.com/)
+    @request_stub = stub_request(:post, /localhost:80/).to_return(status:204)
   end
 
   config.around :each, mock_time: true do |example|
     @date = Time.utc(1992, 1, 1)
 
-    def travel distance
+    def travel(distance)
       Timecop.freeze(@date += distance / 1_000.0)
     end
 
@@ -39,26 +41,24 @@ RSpec.configure do |config|
     Timecop.return
   end
 
-  def build_config attrs = {}
-    Opbeat::Configuration.new({
-      app_id: 'x',
-      organization_id: 'y',
-      secret_token: 'z'
+  def build_config(attrs = {})
+    InfluxReporter::Configuration.new({
+        influx_db: { time_precision: 'ns' }
     }.merge(attrs))
   end
 
   config.around :each, start: true do |example|
-    Opbeat.start! build_config
+    InfluxReporter.start! build_config
     example.call
-    Opbeat::Client.inst.current_transaction = nil
-    Opbeat.stop!
+    InfluxReporter::Client.inst.current_transaction = nil
+    InfluxReporter.stop!
   end
 
   config.around :each, start_without_worker: true do |example|
-    Opbeat.start! build_config(disable_worker: true)
+    InfluxReporter.start! build_config(disable_worker: true)
     example.call
-    Opbeat::Client.inst.current_transaction = nil
-    Opbeat.stop!
+    InfluxReporter::Client.inst.current_transaction = nil
+    InfluxReporter.stop!
   end
 end
 
@@ -68,7 +68,7 @@ RSpec::Matchers.define :delegate do |method, opts|
 
   match do |delegator|
     unless to.respond_to?(method)
-      raise NoMethodError.new("no method :#{method} on #{to}")
+      raise NoMethodError, "no method :#{method} on #{to}"
     end
 
     if args
@@ -84,4 +84,3 @@ RSpec::Matchers.define :delegate do |method, opts|
     "delegate :#{method} to #{to}"
   end
 end
-

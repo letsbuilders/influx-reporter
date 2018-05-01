@@ -1,0 +1,51 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  TargetRailsVersion: 4.2
+  Exclude:
+    - 'Dangerfile'
+    - 'vendor/**.rb'
+Layout/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+  IndentationWidth: 4
+Layout/CaseIndentation:
+  EnforcedStyle: end
+  IndentOneStep: true
+#  Enabled: false
+Layout/FirstParameterIndentation:
+  IndentationWidth: 4
+Layout/IndentHash:
+  IndentationWidth: 4
+Layout/MultilineMethodCallIndentation:
+  IndentationWidth: 4
+  EnforcedStyle: indented_relative_to_receiver
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+Style/EmptyElse:
+  EnforcedStyle: empty
+Style/FormatStringToken:
+  EnforcedStyle: template
+Metrics/LineLength:
+  Max: 180
+Metrics/ClassLength:
+  Max: 150
+Metrics/CyclomaticComplexity:
+  Max: 7
+Metrics/MethodLength:
+  Max: 20
+Metrics/ModuleLength:
+  Max: 150
+Metrics/ParameterLists:
+  Max: 5
+  CountKeywordArgs: true
+Metrics/PerceivedComplexity:
+  Max: 8
+Metrics/AbcSize:
+  Max: 17
+Metrics/BlockLength:
+  ExcludedMethods:
+    - context
+    - describe
+    - namespace
+    - resources
+    - it
+    - configure
