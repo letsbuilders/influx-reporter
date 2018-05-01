@@ -7,7 +7,7 @@ RSpec.describe InfluxReporter do
 
   describe 'self.start!' do
     it 'delegates to client' do
-      conf = InfluxReporter::Configuration.new app_id: 'x', organization_id: 'y', secret_token: 'z'
+      conf = InfluxReporter::Configuration.new database: 'test'
       expect(InfluxReporter::Client).to receive(:start!).with(conf) { true }
       InfluxReporter.start! conf
     end
@@ -24,7 +24,6 @@ RSpec.describe InfluxReporter do
     it { should delegate :set_context, to: InfluxReporter::Client.inst, args: [{}] }
     it { should delegate :with_context, to: InfluxReporter::Client.inst, args: [{}] }
     it { should delegate :report_message, to: InfluxReporter::Client.inst, args: ['My message', nil] }
-    it { should delegate :release, to: InfluxReporter::Client.inst, args: [{}, {}] }
     it { should delegate :capture, to: InfluxReporter::Client.inst }
 
     describe 'a block example', mock_time: true do

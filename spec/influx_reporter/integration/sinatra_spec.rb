@@ -9,9 +9,6 @@ module InfluxReporter
 
     def config
       @config ||= InfluxReporter::Configuration.new do |c|
-        c.app_id = 'X'
-        c.organization_id = 'Y'
-        c.secret_token = 'Z'
         c.disable_worker = true
       end
     end
@@ -70,9 +67,6 @@ module InfluxReporter
 
     def config
       @config ||= InfluxReporter::Configuration.new do |c|
-        c.app_id = 'X'
-        c.organization_id = 'Y'
-        c.secret_token = 'Z'
         c.disable_worker = true
         c.disable_performance = true
       end

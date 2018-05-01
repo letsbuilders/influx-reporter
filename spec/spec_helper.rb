@@ -26,7 +26,7 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns += [%r{/gems/}]
 
   config.before :each do
-    @request_stub = stub_request(:post, /intake\.influx_reporter\.com/)
+    @request_stub = stub_request(:post, /localhost:80/)
   end
 
   config.around :each, mock_time: true do |example|
@@ -43,9 +43,7 @@ RSpec.configure do |config|
 
   def build_config(attrs = {})
     InfluxReporter::Configuration.new({
-        app_id: 'x',
-        organization_id: 'y',
-        secret_token: 'z'
+        influx_db: { time_precision: 'ns' }
     }.merge(attrs))
   end
 

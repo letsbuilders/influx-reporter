@@ -20,4 +20,7 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 2.3.0'
   gem.add_dependency('activesupport', '>= 3.0.0')
+  gem.add_dependency('influxdb', '>= 0.5.3')
+
+  gem.add_development_dependency('rubocop')
 end

@@ -29,24 +29,13 @@ module InfluxReporter
     end
 
     describe '#validate' do
-      let(:auth_opts) { { app_id: 'x', organization_id: 'y', secret_token: 'z' } }
+      let(:auth_opts) { { database: 'endpoints' } }
       it 'is true when all auth options are set' do
         expect(Configuration.new(auth_opts).validate!).to be true
       end
+
       it 'is true' do
         expect(Configuration.new(auth_opts).validate!).to be true
-      end
-      it 'needs an app_id' do
-        auth_opts.delete(:app_id)
-        expect(Configuration.new(auth_opts).validate!).to be false
-      end
-      it 'needs an organization_id' do
-        auth_opts.delete(:organization_id)
-        expect(Configuration.new(auth_opts).validate!).to be false
-      end
-      it 'needs a secret token' do
-        auth_opts.delete(:secret_token)
-        expect(Configuration.new(auth_opts).validate!).to be false
       end
     end
   end

@@ -2,7 +2,7 @@
 
 require 'thread'
 require 'influx_reporter/subscriber'
-require 'influx_reporter/http_client'
+require 'influx_reporter/influx_db_client'
 require 'influx_reporter/worker'
 require 'influx_reporter/transaction'
 require 'influx_reporter/trace'
@@ -54,7 +54,7 @@ module InfluxReporter
     def initialize(config)
       @config = config
 
-      @http_client = HttpClient.new config
+      @influx_client = InfluxDBClient.new config
       @queue = Queue.new
 
       @data_builders = Struct.new(:transactions, :error_message).new(
@@ -176,7 +176,7 @@ module InfluxReporter
     def with_context(context)
       current = @context
 
-      set_context((current || {}).merge(context))
+      set_context((current || {}).deep_merge(context))
 
       yield if block_given?
     ensure
@@ -229,19 +229,6 @@ module InfluxReporter
       end
     end
 
-    # releases
-
-    def release(rel, opts = {})
-      rev = rel[:rev]
-      if opts[:inline]
-        debug "Sending release #{rev}"
-        @http_client.post '/releases/', rel
-      else
-        debug "Enqueuing release #{rev}"
-        enqueue Worker::PostRequest.new('/releases/', rel)
-      end
-    end
-
     private
 
     def enqueue(request)
@@ -257,7 +244,7 @@ module InfluxReporter
 
       @worker_thread = Thread.new do
         begin
-          Worker.new(config, @queue, @http_client).run
+          Worker.new(config, @queue, @influx_client).run
         rescue => e
           fatal "Failed booting worker:\n#{e.inspect}"
           debug e.backtrace.join("\n")

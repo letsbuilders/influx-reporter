@@ -27,9 +27,7 @@ describe 'Rails integration' do
 
       config.eager_load = false
 
-      config.influx_reporter.app_id = 'APP_ID'
-      config.influx_reporter.organization_id = 'ORGANIZATION_ID'
-      config.influx_reporter.secret_token = 'SECRET_TOKEN'
+      config.influx_reporter.database = 'APP_ID'
       config.influx_reporter.disable_worker = true
     end
 

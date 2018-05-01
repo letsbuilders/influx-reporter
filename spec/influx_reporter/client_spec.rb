@@ -4,7 +4,7 @@ require 'spec_helper'
 
 module InfluxReporter
   RSpec.describe Client do
-    let(:config) { Configuration.new app_id: 'x', organization_id: 'y', secret_token: 'z' }
+    let(:config) { Configuration.new influx_db: { host: :localhost }}
 
     describe '.start!' do
       it "set's up an instance and only one" do
@@ -19,7 +19,7 @@ module InfluxReporter
         Client.start! config
         Client.inst.submit_transaction Transaction.new(Client.inst, 'Test').done(200)
         Client.stop!
-        expect(WebMock).to have_requested(:post, %r{/transactions/$})
+        expect(WebMock).to have_requested(:post, %r{\/write})
         expect(Client.inst).to be_nil
       end
     end
@@ -105,50 +105,54 @@ module InfluxReporter
 
       describe '#set_context' do
         it 'sets context for future errors' do
-          subject.set_context(additional_information: 'remember me')
+          subject.set_context(tags: { additional_information: 'remember me' })
 
           exception = Exception.new('BOOM')
           subject.report exception
 
           expect(subject.queue.length).to be 1
-          expect(subject.queue.pop.data[:extra]).to eq(additional_information: 'remember me')
+          expect(subject.queue.pop.data[:tags][:additional_information]).to eq('remember me')
         end
       end
 
       describe '#with_context' do
         it 'sets context for future errors' do
-          subject.with_context(additional_information: 'remember me') do
+          subject.with_context(tags: { additional_information: 'remember me' }) do
             exception = Exception.new('BOOM')
             subject.report exception
           end
 
           expect(subject.queue.length).to be 1
-          expect(subject.queue.pop.data[:extra]).to eq(additional_information: 'remember me')
+          expect(subject.queue.pop.data[:tags][:additional_information]).to eq('remember me')
         end
 
         it 'supports nested contexts' do
-          subject.with_context(info: 'a') do
-            subject.with_context(more_info: 'b') do
+          subject.with_context(values: { info: 'a' }) do
+            subject.with_context(values: { more_info: 'b' }) do
               exception = Exception.new('BOOM')
               subject.report exception
             end
           end
 
           expect(subject.queue.length).to be 1
-          expect(subject.queue.pop.data[:extra]).to eq(info: 'a', more_info: 'b')
+          data = subject.queue.pop.data
+          expect(data[:values][:info]).to eq('a')
+          expect(data[:values][:more_info]).to eq('b')
         end
 
         it 'restores context for future errors' do
-          subject.set_context(info: 'hello')
+          subject.set_context(values: { info: 'hello' })
 
-          subject.with_context(additional_information: 'remember me') do
+          subject.with_context(values: { additional_information: 'remember me' }) do
           end
 
           exception = Exception.new('BOOM')
           subject.report exception
 
           expect(subject.queue.length).to be 1
-          expect(subject.queue.pop.data[:extra]).to eq(info: 'hello')
+          data = subject.queue.pop.data
+          expect(data[:values][:info]).to eq('hello')
+          expect(data[:values][:additional_information]).not_to be
         end
 
         it 'returns what is yielded' do
@@ -197,25 +201,6 @@ module InfluxReporter
 
           expect(subject.queue.length).to be 1
           expect(subject.queue.pop).to be_a Worker::PostRequest
-        end
-      end
-
-      describe '#release' do
-        it 'notifies InfluxReporter of a release' do
-          release = { rev: 'abc123', status: 'completed' }
-
-          subject.release release
-
-          expect(subject.queue.length).to be 1
-          expect(subject.queue.pop).to be_a Worker::PostRequest
-        end
-
-        it 'may send inline' do
-          release = { rev: 'abc123', status: 'completed' }
-
-          subject.release release, inline: true
-
-          expect(WebMock).to have_requested(:post, %r{/releases/$}).with(body: release)
         end
       end
     end

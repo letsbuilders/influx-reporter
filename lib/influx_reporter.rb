@@ -141,21 +141,6 @@ module InfluxReporter
     client.capture(&block)
   end
 
-  # Notify InfluxReporter of a release
-  #
-  # @param rel [Hash]
-  # @option rel [String] :rev Revision
-  # @option rel [String] :branch
-  # @return [Net::HTTPResponse]
-  def self.release(rel, opts = {})
-    unless client
-      return yield if block_given?
-      return nil
-    end
-
-    client.release rel, opts
-  end
-
   private
 
   def self.client

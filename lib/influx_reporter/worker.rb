@@ -14,10 +14,10 @@ module InfluxReporter
 
     class StopMessage; end
 
-    def initialize(config, queue, http_client)
+    def initialize(config, queue, influx_client)
       @config = config
       @queue = queue
-      @http_client = http_client
+      @influx_client = influx_client
     end
 
     attr_reader :config
@@ -46,7 +46,7 @@ module InfluxReporter
       end
 
       begin
-        @http_client.post(req.path, req.data)
+        @influx_client.post(req.path, req.data)
       rescue => e
         fatal "Failed POST: #{e.inspect}"
         debug e.backtrace.join("\n")
