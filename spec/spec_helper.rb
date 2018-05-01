@@ -26,7 +26,7 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns += [%r{/gems/}]
 
   config.before :each do
-    @request_stub = stub_request(:post, /localhost:80/)
+    @request_stub = stub_request(:post, /localhost:80/).to_return(status:204)
   end
 
   config.around :each, mock_time: true do |example|
