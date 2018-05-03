@@ -44,8 +44,8 @@ module InfluxReporter
   # @param endpoint [String] A description of the transaction, eg `ExamplesController#index`
   # @param kind [String] The kind of the transaction, eg `app.request.get` or `db.mysql2.query`
   # @param result [Object] Result of the transaction, eq `200` for a HTTP server
-  # @yield [Transaction] Optional block encapsulating transaction
-  # @return [Transaction] Unless block given
+  # @yield [InfluxReporter::Transaction] Optional block encapsulating transaction
+  # @return [InfluxReporter::Transaction] Unless block given
   def self.transaction(endpoint, kind = nil, result = nil, &block)
     unless client
       return yield if block_given?
@@ -78,6 +78,12 @@ module InfluxReporter
     end
 
     client.flush_transactions
+  end
+
+  def self.flush_transactions_if_needed
+    if client
+      client.flush_transactions_if_needed
+    end
   end
 
   # Sets context for future errors

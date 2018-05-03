@@ -167,6 +167,12 @@ module InfluxReporter
       true
     end
 
+    def flush_transactions_if_needed
+      if should_send_transactions?
+        flush_transactions
+      end
+    end
+
     # errors
 
     def set_context(context)
