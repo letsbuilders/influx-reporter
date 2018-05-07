@@ -8,20 +8,11 @@ end
 if defined? Sidekiq
   module InfluxReporter
     module Integration
-      class Sidekiq
-        KIND = 'worker.sidekiq'.freeze
-        PART_KIND = 'worker.sidekiq.part'
-        PERFORM_TRACE = 'perform'.freeze
-        PERFORM_KIND = 'app.worker.perform'.freeze
-
+      class SidekiqException
 
         def call(worker, item, queue)
           InfluxReporter.set_context tags: { sidekiq_queue: queue }
-
-          performance_trace(worker, item, queue) do
-            yield
-          end
-
+          yield
         rescue Exception => exception
           if [Interrupt, SystemExit, SignalException].include? exception.class
             raise exception
@@ -31,6 +22,22 @@ if defined? Sidekiq
 
           raise
         end
+      end
+
+      class Sidekiq
+        KIND = 'worker.sidekiq'.freeze
+        PART_KIND = 'worker.sidekiq.part'
+        PERFORM_TRACE = 'perform'.freeze
+        PERFORM_KIND = 'app.worker.perform'.freeze
+
+
+        def call(worker, item, queue)
+          performance_trace(worker, item, queue) do
+            yield
+          end
+        end
+
+        private
 
         def performance_trace(worker, item, queue)
           return yield unless worker.class.performance_trace?
@@ -39,16 +46,16 @@ if defined? Sidekiq
           transaction.extra_tags do |extra|
             extra[:sidekiq_queue] = queue
           end
-          success = 500
+          response_code = 500
           trace = transaction&.trace PERFORM_TRACE, PERFORM_KIND
 
           begin
             yield
-            success = 200
+            response_code = 200
           ensure
             InfluxReporter::Client.inst.current_transaction = nil
             trace&.done
-            transaction&.submit(success)
+            transaction&.submit(response_code)
           end
           InfluxReporter.flush_transactions_if_needed
         end
@@ -108,11 +115,15 @@ if defined? Sidekiq
   Sidekiq.configure_server do |config|
     if Sidekiq::VERSION.to_i < 3
       config.server_middleware do |chain|
+        chain.add InfluxReporter::Integration::SidekiqException
         chain.add InfluxReporter::Integration::Sidekiq
       end
     else
       config.error_handlers << lambda do |exception, *|
         InfluxReporter.report exception
+      end
+      config.server_middleware do |chain|
+        chain.add InfluxReporter::Integration::Sidekiq
       end
     end
   end
