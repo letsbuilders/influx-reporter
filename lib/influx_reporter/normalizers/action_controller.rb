@@ -9,10 +9,17 @@ module InfluxReporter
 
         def normalize(transaction, _name, payload)
           transaction.endpoint = endpoint(payload)
-          [transaction.endpoint, KIND, nil]
+          [transaction.endpoint, KIND, extra(payload)]
         end
 
         private
+
+        def extra(payload)
+          extra = { tags: {}, values: {}}
+          config.payload_tags.each { |key| extra[:tags][key] = payload[key] }
+          config.payload_values.each { |key| extra[:values][key] = payload[key] }
+          extra
+        end
 
         def endpoint(payload)
           "#{payload[:controller]}##{payload[:action]}"

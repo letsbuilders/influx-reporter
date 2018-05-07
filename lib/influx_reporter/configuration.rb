@@ -20,6 +20,9 @@ module InfluxReporter
         transaction_post_interval: 60,
         worker_quit_timeout: 5,
 
+        payload_tags: [],
+        payload_values: [],
+
         disable_performance: false,
         disable_errors: false,
 
@@ -46,6 +49,9 @@ module InfluxReporter
     attr_accessor :environment
     attr_accessor :transaction_post_interval
     attr_accessor :worker_quit_timeout
+
+    attr_accessor :payload_tags
+    attr_accessor :payload_values
 
     attr_accessor :disable_performance
     attr_accessor :disable_errors

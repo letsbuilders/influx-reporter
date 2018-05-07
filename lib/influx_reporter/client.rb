@@ -71,8 +71,19 @@ module InfluxReporter
       @last_sent_transactions = Time.now.utc
     end
 
+    # @!attribute [r] config
+    #   InfluxReporter configuration
+    #   @return [InfluxReporter::Configuration]
+    # @!attribute [r] queue
+    #   Worker data queue
+    #   @return [Thread::Queue]
+    # @!attribute [r] pending_transactions
+    #   Transaction to be submitted
+    #   @return [Thread::Queue]
     attr_reader :config, :queue, :pending_transactions
 
+    # Start client
+    # @return [InfluxReporter::Client]
     def start!
       info 'Starting client'
 
