@@ -15,10 +15,10 @@ if defined?(Sidekiq)
 
   Sidekiq::Testing.inline!
   Sidekiq::Testing.server_middleware do |chain|
-    chain.add InfluxReporter::Integration::Sidekiq
+    chain.add InfluxReporter::Integration::SidekiqException
   end
 
-  RSpec.describe InfluxReporter::Integration::Sidekiq, start_without_worker: true do
+  RSpec.describe InfluxReporter::Integration::SidekiqException, start_without_worker: true do
     class MyWorker
       include Sidekiq::Worker
 

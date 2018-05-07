@@ -18,7 +18,7 @@ module InfluxReporter
 
       describe '#normalize' do
         it 'normalizes input and updates transaction' do
-          transaction = Struct.new(:endpoint).new(nil)
+          transaction = Transaction.new(nil, nil, nil)
           uuid = SecureRandom.uuid
 
           result = subject.normalize(transaction, 'process_action.action_controller',
@@ -28,7 +28,8 @@ module InfluxReporter
                                      geohash: 'foo')
 
           expect(transaction.endpoint).to eq 'SomeController#index'
-          expect(result).to match ['SomeController#index', 'app.controller.action', {:tags=>{ geohash: 'foo' }, :values=>{ uuid: uuid }}]
+          expect(result).to match ['SomeController#index', 'app.controller.action', nil]
+          expect(transaction.root_trace.extra).to eq( tags: { geohash: 'foo' }, values: { uuid: uuid } )
         end
       end
     end
