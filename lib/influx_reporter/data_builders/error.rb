@@ -8,6 +8,7 @@ module InfluxReporter
       # @param error_message [InfluxReporter::ErrorMessage]
       def build(error_message)
         {
+            series: 'errors',
             values: build_values(error_message),
             tags: build_tags(error_message),
             timestamp: error_message.timestamp

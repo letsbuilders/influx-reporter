@@ -88,7 +88,7 @@ module InfluxReporter
             signature: trace.signature,
             kind: trace.kind.split('.')[1..-1].join('.')
         }
-        (trace.transaction.root_trace.extra[:tags] || {}).merge(trace.extra[:tags] || {}).merge(tags)
+        tags = (trace.transaction.root_trace.extra[:tags] || {}).merge(trace.extra[:tags] || {}).merge(tags)
         clean tags
       end
 

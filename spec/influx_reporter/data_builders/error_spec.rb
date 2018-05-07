@@ -21,6 +21,7 @@ module InfluxReporter
         it 'builds an error dict from an exception' do
           error_message = ErrorMessage.from_exception config, real_exception
           example = {
+              series: 'errors',
               values: {
                   message: 'ZeroDivisionError: divided by 0',
                   culprit: "influx_reporter/data_builders/error_spec.rb:15:in `/'"
