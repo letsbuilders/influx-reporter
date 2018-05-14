@@ -3,12 +3,12 @@
 Add the following to your `Gemfile`:
 
 ```ruby
-gem 'influx_reporter', '~> 3.0.9'
+gem 'influx_reporter', '~> 1.0.0'
 ```
 
 The InfluxReporter gem adheres to [Semantic
 Versioning](http://guides.rubygems.org/patterns/#semantic-versioning)
-and so you can safely trust all minor and patch versions (e.g. 3.x.x) to
+and so you can safely trust all minor and patch versions (e.g. 1.x.x) to
 be backwards compatible.
 
 ## Usage
@@ -20,8 +20,11 @@ Add the following to your `config/environments/production.rb`:
 ```ruby
 Rails.application.configure do |config|
   # ...
-  config.influx_reporter.host = 'XXX'
-end
+  config.influx_reporter.database = 'endpoints'
+  config.influx_reporter.influx_db = {
+    host: 'influxdb.local',
+    port: '8080'
+  }
 ```
 
 ### Rack
@@ -31,9 +34,14 @@ require 'influx_reporter'
 
 # set up an InfluxReporter configuration
 config = InfluxReporter::Configuration.new do |conf|
-  conf.organization_id = 'XXX'
-  conf.app_id = 'XXX'
-  conf.secret_token = 'XXX'
+  conf.influx_reporter.database = 'endpoints'
+  conf.influx_reporter.influx_db = {
+      host: 'influxdb.local',
+      port: '8080'
+  }
+  conf.tags = { 
+    environment: ENV['RACK_ENV']
+  }
 end
 
 # start the InfluxReporter client
@@ -46,7 +54,7 @@ use InfluxReporter::Middleware
 
 ## Configuration
 
-InfluxReporter works with just the authentication configuration but of course there are other knobs to turn. For a complete list, see [configuration.rb](https://github.com/influx_reporter/influx_reporter-ruby/blob/master/lib/influx_reporter/configuration.rb).
+InfluxReporter works with just the InfluxDB host configuration.
 
 #### Enable in development and other environments
 
@@ -90,7 +98,7 @@ You may specify extra context for errors ahead of time by using `InfluxReporter.
 ```ruby
 class DashboardController < ApplicationController
   before_action do
-    InfluxReporter.set_context(timezone: current_user.timezone)
+    InfluxReporter.set_context(tags: { timezone: current_user.timezone }, values: { my_value: 11 })
   end
 end
 ```
@@ -98,10 +106,23 @@ end
 or by specifying it as a block using `InfluxReporter.with_context` eg:
 
 ```ruby
-InfluxReporter.with_context(user_id: @user.id) do
+InfluxReporter.with_context(values: { user_id: @user.id }) do
   UserMailer.welcome_email(@user).deliver_now
 end
 ```
+
+### Transaction context
+You may specify extra context for performance transaction
+
+```ruby
+InfluxReporter.client&.current_transaction&.extra_tags do |tags|
+  tags[:locale] = I18n.locale
+end
+InfluxReporter.client&.current_transaction&.extra_values do |values|
+  values[:uuid] = request.uuid
+end
+```
+
 
 ## Background processing
 
@@ -138,29 +159,6 @@ InfluxReporter.transaction "Transaction identifier" do
     perform_expensive_task data
   end
 end.done(200)
-```
-
-Here, for example is how you could profile a Sidekiq worker job:
-
-```ruby
-class MyWorker
-  include Sidekiq::Worker
-
-  def perform
-    InfluxReporter.transaction "MyWorker#perform", "worker.sidekiq" do
-      User.find_each do |user|
-        InfluxReporter.trace 'run!' do
-          user.sync_with_payment_provider!
-        end
-      end
-    end.submit(true)
-    # `true` here is the result of the transaction
-    # eg 200, 404 and so on for web requests but
-    # anything that translates into JSON works
-
-    InfluxReporter.flush_transactions # send transactions right away
-  end
-end
 ```
 
 If you are inside a web request, you are already inside a transaction so you only need to use trace:
