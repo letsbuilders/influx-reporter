@@ -118,7 +118,8 @@ module InfluxReporter
         return nil
       end
 
-      if transaction = current_transaction
+      if current_transaction
+        transaction = current_transaction
         yield transaction if block_given?
         return transaction
       end

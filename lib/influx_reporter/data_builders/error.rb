@@ -27,6 +27,7 @@ module InfluxReporter
             method: error_message.http&.method
         }
         tags = error_message.extra[:tags].merge(tags) if error_message.extra && error_message.extra[:tags].is_a?(Hash)
+        tags = error_message.config.tags.merge(tags)
         tags.reject { |_, value| value.nil? || value == '' }
       end
 

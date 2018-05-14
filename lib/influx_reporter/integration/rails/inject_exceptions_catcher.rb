@@ -11,7 +11,7 @@ module InfluxReporter
 
         def render_exception_with_influx_reporter(env, exception)
           begin
-            InfluxReporter.report(exception, rack_env: env) if InfluxReporter.started?
+            InfluxReporter.report(exception, tags: { rack_env: env }) if InfluxReporter.started?
           rescue
             ::Rails.logger.error "** [InfluxReporter] Error capturing or sending exception #{$ERROR_INFO}"
             ::Rails.logger.debug $ERROR_INFO.backtrace.join("\n")

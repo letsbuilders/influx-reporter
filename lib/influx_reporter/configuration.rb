@@ -30,6 +30,8 @@ module InfluxReporter
 
         view_paths: [],
 
+        tags: {},
+
         # for tests
         disable_worker: false
     }.freeze
@@ -62,6 +64,8 @@ module InfluxReporter
 
     attr_accessor :view_paths
 
+    attr_accessor :tags
+
     def initialize(opts = {})
       DEFAULTS.merge(opts).each do |k, v|
         send("#{k}=", v)
@@ -71,7 +75,7 @@ module InfluxReporter
     end
 
     def validate!
-      %w[database influx_db].each do |key|
+      %w[database influx_db tags].each do |key|
         raise Error, "InfluxReporter Configuration missing `#{key}'" unless send(key)
       end
 

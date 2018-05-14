@@ -13,6 +13,7 @@ module InfluxReporter
       config = Configuration.new app.config.influx_reporter do |conf|
         conf.logger = Rails.logger
         conf.view_paths = app.config.paths['app/views'].existent
+        conf.tags[:environment] = Rails.env
       end
 
       if config.enabled_environments.include?(Rails.env)

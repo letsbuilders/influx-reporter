@@ -43,6 +43,7 @@ module InfluxReporter
             kind: transaction.kind.split('.')[2..-1].join('.')
         }
         tags = (transaction.root_trace.extra[:tags] || {}).merge(tags)
+        tags = transaction.config.tags.merge(tags) if transaction.config
         clean tags
       end
 
@@ -89,6 +90,7 @@ module InfluxReporter
             kind: trace.kind.split('.')[1..-1].join('.')
         }
         tags = (trace.transaction.root_trace.extra[:tags] || {}).merge(trace.extra[:tags] || {}).merge(tags)
+        tags = trace.transaction.config.tags.merge(tags) if trace.transaction.config
         clean tags
       end
 
@@ -100,6 +102,7 @@ module InfluxReporter
             start_time: ms(trace.relative_start)
         }
         values = (trace.extra[:values] || {}).merge(values)
+        values[:uuid] ||= trace.transaction.root_trace.extra[:values][:uuid] if trace.transaction.root_trace.extra[:values]
         clean values
       end
 

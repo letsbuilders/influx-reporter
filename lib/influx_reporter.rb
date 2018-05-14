@@ -72,26 +72,18 @@ module InfluxReporter
   end
 
   def self.flush_transactions
-    unless client
-      return yield if block_given?
-      return nil
-    end
-
-    client.flush_transactions
+    client&.flush_transactions
   end
 
   def self.flush_transactions_if_needed
-    if client
-      client.flush_transactions_if_needed
-    end
+    client&.flush_transactions_if_needed
   end
 
   # Sets context for future errors
   #
   # @param context [Hash]
   def self.set_context(context)
-    return nil unless client
-    client.set_context context
+    client&.set_context context
   end
 
   # Updates context for errors within the block
@@ -128,12 +120,7 @@ module InfluxReporter
   # @param opts [Hash]
   # @return [Net::HTTPResponse]
   def self.report_message(message, opts = {})
-    unless client
-      return yield if block_given?
-      return nil
-    end
-
-    client.report_message message, opts
+    client&.report_message message, opts
   end
 
   # Captures any exceptions raised inside the block

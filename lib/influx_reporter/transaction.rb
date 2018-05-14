@@ -6,8 +6,13 @@ module InfluxReporter
   class Transaction
     ROOT_TRACE_NAME = 'transaction'
 
+    # @param client [InfluxReporter::Client]
+    # @param endpoint [String]
+    # @param kind [String]
+    # @param result [Integer]
     def initialize(client, endpoint, kind = 'code.custom', result = nil)
       @client = client
+      @config = client.config if client.respond_to?(:config)
       @endpoint = endpoint
       @kind = kind
       @result = result
@@ -23,7 +28,7 @@ module InfluxReporter
     end
 
     attr_accessor :endpoint, :kind, :result, :duration
-    attr_reader :timestamp, :start_time, :traces, :notifications, :root_trace
+    attr_reader :timestamp, :start_time, :traces, :notifications, :root_trace, :config
 
     def release
       @client.current_transaction = nil
