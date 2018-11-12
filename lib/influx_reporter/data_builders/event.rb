@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'influx_reporter/filter'
-
 module InfluxReporter
   module DataBuilders
     class Event < DataBuilder
