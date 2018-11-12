@@ -27,6 +27,19 @@ module InfluxReporter
           }
           expect(subject.build(event_message)).to match(example)
         end
+
+        it 'builds an event message dict from an event with a custom series name' do
+          event_message = InfluxReporter::EventMessage.new(config, 'Event', extra: { series: 'test' })
+          example = {
+              series: 'test',
+              values: {
+                  message: 'Event'
+              },
+              tags: {},
+              timestamp: an_instance_of(Integer)
+          }
+          expect(subject.build(event_message)).to match(example)
+        end
       end
     end
   end

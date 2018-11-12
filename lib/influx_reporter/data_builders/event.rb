@@ -6,7 +6,7 @@ module InfluxReporter
       # @param event [InfluxReporter::Event]
       def build(event)
         {
-            series: 'events',
+            series: build_series_name(event),
             values: build_values(event),
             tags: build_tags(event),
             timestamp: event.timestamp
@@ -16,9 +16,15 @@ module InfluxReporter
       private
 
       # @param event [InfluxReporter::Event]
+      def build_series_name(event)
+        return event.extra[:series] if event.extra && event.extra[:series].is_a?(String)
+        'events'
+      end
+
+      # @param event [InfluxReporter::Event]
       def build_tags(event)
         tags = event.extra[:tags] if event.extra && event.extra[:tags].is_a?(Hash)
-        tags = event.config.tags.merge(tags)
+        tags = event.config.tags.merge(tags || {})
         tags.reject { |_, value| value.nil? || value == '' }
       end
 
