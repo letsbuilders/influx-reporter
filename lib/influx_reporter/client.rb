@@ -7,6 +7,7 @@ require 'influx_reporter/worker'
 require 'influx_reporter/transaction'
 require 'influx_reporter/trace'
 require 'influx_reporter/error_message'
+require 'influx_reporter/event_message'
 require 'influx_reporter/data_builders'
 
 module InfluxReporter
@@ -57,9 +58,10 @@ module InfluxReporter
       @influx_client = InfluxDBClient.new config
       @queue = Queue.new
 
-      @data_builders = Struct.new(:transactions, :error_message).new(
+      @data_builders = Struct.new(:transactions, :error_message, :event).new(
           DataBuilders::Transactions.new(config),
-          DataBuilders::Error.new(config)
+          DataBuilders::Error.new(config),
+          DataBuilders::Event.new(config)
       )
 
       unless config.disable_performance
@@ -225,6 +227,15 @@ module InfluxReporter
       error_message.add_extra(@context) if @context
       data = @data_builders.error_message.build error_message
       enqueue Worker::PostRequest.new('/errors/', data)
+    end
+
+    def report_event(message, opts = {})
+      ensure_worker_running
+
+      event = EventMessage.new(config, message, opts)
+      event.add_extra(@context) if @context
+      data = @data_builders.event.build event
+      enqueue Worker::PostRequest.new('/events/', data)
     end
 
     def capture

@@ -11,7 +11,7 @@ module InfluxReporter
       attr_reader :config
     end
 
-    %w[transactions error].each do |f|
+    %w[transactions error event].each do |f|
       require "influx_reporter/data_builders/#{f}"
     end
   end
