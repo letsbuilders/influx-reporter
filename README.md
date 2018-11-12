@@ -138,6 +138,24 @@ Resque::Failure::Multiple.classes = [InfluxReporter::Integration::Resque]
 Resque::Failure.backend = Resque::Failure::Multiple
 ```
 
+## Sending events to Influx
+
+You may want to send events instead of errors or performance traces to Influx. In this case, a method is provided:
+
+```ruby
+InfluxReporter.report_event 'event_name'
+```
+
+By default, the InfluxDB series name will be "events". You can change this with an extra parameter:
+```ruby
+InfluxReporter.report_event 'event_name', extra: { series: 'my_series' }
+```
+
+Adding tags & values is also possible:
+```ruby
+InfluxReporter.report_event 'event_name', extra: { tags: { key: 'tag' }, values: { key: 'value' } }
+```
+
 ## Manual profiling
 
 It's easy to add performance tracking wherever you want using the `InfluxReporter` module.
