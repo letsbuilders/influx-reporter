@@ -173,7 +173,7 @@ module InfluxReporter
       return if @pending_transactions.empty?
 
       data = @data_builders.transactions.build(@pending_transactions)
-      enqueue Worker::PostRequest.new('/transactions/', data)
+      enqueue Worker::PostRequest.new(resource_from_path('transactions', {}), data)
 
       @last_sent_transactions = Time.now.utc
       @pending_transactions = []
