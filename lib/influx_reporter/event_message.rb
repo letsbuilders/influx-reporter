@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'active_support/core_ext/hash/deep_merge'
 require 'influx_reporter/util/timestamp'
 
 module InfluxReporter
@@ -26,7 +27,7 @@ module InfluxReporter
 
     def add_extra(info)
       @extra ||= {}
-      @extra.merge! info
+      @extra.deep_merge! info
     end
   end
 end
