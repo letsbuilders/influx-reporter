@@ -156,6 +156,11 @@ Adding tags & values is also possible:
 InfluxReporter.report_event 'event_name', extra: { tags: { key: 'tag' }, values: { key: 'value' } }
 ```
 
+Finally, events might generate lots of keys and you may want to use a specific database just for this purpose.
+```ruby
+InfluxReporter.report_event 'event_name', database: 'events_database'
+```
+
 ## Manual profiling
 
 It's easy to add performance tracking wherever you want using the `InfluxReporter` module.
