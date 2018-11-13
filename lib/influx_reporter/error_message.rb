@@ -45,6 +45,7 @@ module InfluxReporter
     attr_accessor :stacktrace
     attr_accessor :http
     attr_accessor :user
+    attr_accessor :database
 
     def self.from_exception(config, exception, opts = {})
       message = "#{exception.class}: #{exception.message}"
