@@ -25,13 +25,13 @@ module InfluxReporter
         end
 
         it 'pops the queue' do
-          @queue << Worker::PostRequest.new('/errors/', { series: 'test', values: { id: 1 }, timestamp: 0})
-          @queue << Worker::PostRequest.new('/errors/', { series: 'test', values: { id: 1 }, timestamp: 1})
+          @queue << Worker::PostRequest.new({ url: '/errors/' }, { series: 'test', values: { id: 1 }, timestamp: 0})
+          @queue << Worker::PostRequest.new({ url: '/errors/', database: 'db2' }, { series: 'test', values: { id: 1 }, timestamp: 1})
 
           subject
 
           expect(WebMock).to have_requested(:post, %r{/write}).with(body: 'test id=1i 0')
-          expect(WebMock).to have_requested(:post, %r{/write}).with(body: 'test id=1i 1')
+          expect(WebMock).to have_requested(:post, %r{/write\?db=db2}).with(body: 'test id=1i 1')
         end
       end
 
