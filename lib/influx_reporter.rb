@@ -123,6 +123,15 @@ module InfluxReporter
     client&.report_message message, opts
   end
 
+  # Send an event to InfluxReporter
+  #
+  # @param message [String]
+  # @param opts [Hash]
+  # @return [Net::HTTPResponse]
+  def self.report_event(message, opts = {})
+    client&.report_event message, opts
+  end
+
   # Captures any exceptions raised inside the block
   #
   def self.capture(&block)
