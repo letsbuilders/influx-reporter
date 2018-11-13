@@ -24,6 +24,7 @@ module InfluxReporter
     attr_accessor :message
     attr_reader :timestamp
     attr_accessor :extra
+    attr_accessor :database
 
     def add_extra(info)
       @extra ||= {}

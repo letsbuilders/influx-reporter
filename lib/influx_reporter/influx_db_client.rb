@@ -21,7 +21,7 @@ module InfluxReporter
     attr_reader :config
 
     def post(resource, data)
-      debug "POST #{resource}"
+      debug "POST #{resource[:url]}"
 
       unless state.should_try?
         info 'Temporarily skipping sending to InfluxReporter due to previous failure.'
@@ -30,7 +30,7 @@ module InfluxReporter
 
       begin
         data = [data] unless data.is_a?(Array)
-        client.write_points data
+        client.write_points data, nil, nil, resource.fetch(:database, nil)
       rescue StandardError => e
         debug { e.message }
         @state.fail!

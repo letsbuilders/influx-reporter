@@ -173,7 +173,7 @@ module InfluxReporter
       return if @pending_transactions.empty?
 
       data = @data_builders.transactions.build(@pending_transactions)
-      enqueue Worker::PostRequest.new('/transactions/', data)
+      enqueue Worker::PostRequest.new(resource_from_path('transactions', {}), data)
 
       @last_sent_transactions = Time.now.utc
       @pending_transactions = []
@@ -214,7 +214,7 @@ module InfluxReporter
       if error_message = ErrorMessage.from_exception(config, exception, opts)
         error_message.add_extra(@context) if @context
         data = @data_builders.error_message.build error_message
-        enqueue Worker::PostRequest.new('/errors/', data)
+        enqueue Worker::PostRequest.new(resource_from_path('errors', opts), data)
       end
     end
 
@@ -226,7 +226,7 @@ module InfluxReporter
       error_message = ErrorMessage.new(config, message, opts)
       error_message.add_extra(@context) if @context
       data = @data_builders.error_message.build error_message
-      enqueue Worker::PostRequest.new('/errors/', data)
+      enqueue Worker::PostRequest.new(resource_from_path('errors', opts), data)
     end
 
     def report_event(message, opts = {})
@@ -235,7 +235,7 @@ module InfluxReporter
       event = EventMessage.new(config, message, opts)
       event.add_extra(@context) if @context
       data = @data_builders.event.build event
-      enqueue Worker::PostRequest.new('/events/', data)
+      enqueue Worker::PostRequest.new(resource_from_path('events', opts), data)
     end
 
     def capture
@@ -263,6 +263,13 @@ module InfluxReporter
     def enqueue(request)
       @queue << request
     end
+
+    def resource_from_path(path, opts)
+      obj = { url: "/#{path}/" }
+      obj[:database] = opts[:database] if opts[:database]
+      obj
+    end
+
 
     def start_worker
       return if worker_running?
