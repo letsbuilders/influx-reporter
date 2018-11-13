@@ -5,10 +5,10 @@ module InfluxReporter
   class Worker
     include Logging
 
-    class PostRequest < Struct.new(:path, :data)
+    class PostRequest < Struct.new(:resource, :data)
       # require all parameters
-      def initialize(path, data)
-        super(path, data)
+      def initialize(resource, data)
+        super(resource, data)
       end
     end
 
@@ -46,7 +46,7 @@ module InfluxReporter
       end
 
       begin
-        @influx_client.post(req.path, req.data)
+        @influx_client.post(req.resource, req.data)
       rescue => e
         fatal "Failed POST: #{e.inspect}"
         debug e.backtrace.join("\n")
