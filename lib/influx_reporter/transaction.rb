@@ -59,7 +59,7 @@ module InfluxReporter
     end
 
     def trace(signature, kind = nil, extra = nil)
-      trace = Trace.new(self, signature, kind, running_traces.clone, extra)
+      trace = Trace.new(self, signature, kind, running_traces, extra)
 
       rel_time = current_offset
 
