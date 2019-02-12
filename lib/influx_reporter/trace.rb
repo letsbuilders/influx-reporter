@@ -23,12 +23,14 @@ module InfluxReporter
       @start_time = Util.nanos
       @relative_start = start_time - relative_to
 
+      @transaction._trace_started self
       self
     end
 
     def done(ms = Util.nanos)
       @duration = ms - start_time
 
+      @transaction._trace_stopped self
       self
     end
 
