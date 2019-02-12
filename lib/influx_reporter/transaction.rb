@@ -19,6 +19,7 @@ module InfluxReporter
 
       @timestamp = Util.nanos
 
+      @running_traces = []
       @root_trace = Trace.new(self, ROOT_TRACE_NAME, ROOT_TRACE_NAME)
       @traces = [@root_trace]
       @notifications = []
@@ -58,7 +59,7 @@ module InfluxReporter
     end
 
     def trace(signature, kind = nil, extra = nil)
-      trace = Trace.new(self, signature, kind, running_traces, extra)
+      trace = Trace.new(self, signature, kind, running_traces.clone, extra)
 
       rel_time = current_offset
 
@@ -77,6 +78,18 @@ module InfluxReporter
       result
     end
 
+    def _trace_started(trace)
+      @running_traces.push trace
+    end
+
+    def _trace_stopped(trace)
+      if @running_traces.last == trace
+        @running_traces.pop
+      else
+        @running_traces.delete trace
+      end
+    end
+
     def extra_tags
       @root_trace.extra[:tags] ||= {}
       yield @root_trace.extra[:tags]
@@ -88,11 +101,11 @@ module InfluxReporter
     end
 
     def running_traces
-      traces.select(&:running?)
+      @running_traces.clone
     end
 
     def current_trace
-      traces.reverse.find(&:running?)
+      @running_traces.last
     end
 
     def current_offset
