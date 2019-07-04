@@ -34,8 +34,8 @@ require 'influx_reporter'
 
 # set up an InfluxReporter configuration
 config = InfluxReporter::Configuration.new do |conf|
-  conf.influx_reporter.database = 'endpoints'
-  conf.influx_reporter.influx_db = {
+  conf.database = 'endpoints'
+  conf.influx_db = {
       host: 'influxdb.local',
       port: '8080'
   }
