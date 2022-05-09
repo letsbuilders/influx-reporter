@@ -14,7 +14,7 @@ module InfluxReporter
     # @param config [InfluxReporter::Configuration]
     def initialize(config)
       @config = config
-      @client = InfluxDB::Client.new config.database, config.influx_db.merge(time_precision: 'ns')
+      @client = InfluxDB::Client.new config.database, **config.influx_db.merge(time_precision: 'ns')
       @state = ClientState.new config
     end
 
