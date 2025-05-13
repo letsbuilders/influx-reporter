@@ -9,7 +9,7 @@ module InfluxReporter
           cls.send(:alias_method, :render_exception, :render_exception_with_influx_reporter)
         end
 
-        def render_exception_with_influx_reporter(env, exception)
+        def render_exception_with_influx_reporter(env, exception, *args)
           begin
             InfluxReporter.report(exception, tags: { rack_env: env }) if InfluxReporter.started?
           rescue
@@ -17,7 +17,7 @@ module InfluxReporter
             ::Rails.logger.debug $ERROR_INFO.backtrace.join("\n")
           end
 
-          render_exception_without_influx_reporter(env, exception)
+          render_exception_without_influx_reporter(env, exception, *args)
         end
       end
     end

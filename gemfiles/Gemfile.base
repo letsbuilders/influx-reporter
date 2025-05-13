@@ -25,5 +25,5 @@ gem 'resque', require: false
 
 # Freeze Sidekiq to < 5 in Ruby 2.2 Gemfiles
 if RUBY_VERSION >= '2'
-  gem 'sidekiq', (RUBY_VERSION >= '2.2.2' ? '~> 5' : '~> 4'), require: false
+  gem 'sidekiq', (RUBY_VERSION >= '2.5.0' ? '~> 6' : '~> 4'), require: false
 end

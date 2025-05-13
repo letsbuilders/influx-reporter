@@ -22,7 +22,7 @@ module InfluxReporter
         expect(http.query_string).to eq 'a=1&password=[FILTERED]'
         expect(http.cookies).to eq('user_id=1')
         expect(http.remote_host).to eq '1.2.3.4'
-        expect(http.http_host).to eq 'example.org:80'
+        expect(http.http_host).to eq 'example.org'
         expect(http.user_agent).to eq 'test-agent 1.2/3'
 
         expect(http.headers).to eq('Cookie' => 'user_id=1',
