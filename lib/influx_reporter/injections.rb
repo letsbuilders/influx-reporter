@@ -85,9 +85,5 @@ module ::Kernel
     end
 
     res
-  rescue Exception => e
-    puts "Error requiring #{name}: #{e.message}"
-    puts e.backtrace.join("\n")
-    raise e
   end
 end
