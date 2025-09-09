@@ -27,7 +27,7 @@ module InfluxReporter
       class Frame < Struct.new(:filename, :lineno, :abs_path, :function, :vars,
           :pre_context, :context_line, :post_context)
 
-        BACKTRACE_REGEX = /^(.+?):(\d+)(?::in `(.+?)')?$/
+        BACKTRACE_REGEX = /^(.+?):(\d+)(?::in ['`"](.+?)[`'"])?$/
 
         class << self
           def from_line(config, line)
